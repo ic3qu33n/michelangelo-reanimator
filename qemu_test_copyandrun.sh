@@ -10,8 +10,14 @@
 #	This is for a pretty specific use-case (see above bb)
 #	but the workflow may have some crossover with other projects
 #
+#	To run:
+#	You'll need to run with sudo. Make your peace with that or leave,
+#	you'll also need to chmod +x the script, obv
+#	To call the script for a specific testdisk, run:
+#	./qemu_test_copyandrun.sh {name of test disk}
 #
 #********************************************************************
+TESTDISK=$1
 
 #********************************************************************
 #	Assumes you have already created a directory in the tmp folder, 
@@ -25,7 +31,7 @@ nasm -f bin -o grafx_setup.com grafx_setup.asm
 ##sudo umount is really not necessary but I do it incase the disk image is still mounted
 sudo umount /tmp/dos
 
-#sudo mount -o loop,offset=32256 newdos_clone0.img /tmp/dos    
+sudo mount -o loop,offset=32256 newdos_clone0.img /tmp/dos    
 
 cd /tmp/dos
 # optional traversal into subdir; my virtual disk is formatted w freedos
@@ -45,4 +51,5 @@ cd ~/Desktop/b00tkit_testing
 sudo umount /tmp/dos
  
 #
-qemu-system-i386 -m 16 -k en-us -rtc base=localtime -device cirrus-vga -display gtk -hda newdos_clone0.img
+#qemu-system-i386 -m 16 -k en-us -rtc base=localtime -device cirrus-vga -display gtk -hda newdos_clone0.img
+qemu-system-i386 -m 16 -k en-us -rtc base=localtime -device cirrus-vga -display gtk -hda $TESTDISK
