@@ -1,0 +1,25 @@
+ Directory of C:\
+
+FREEDOS              <DIR>  06-18-2023 12:49a
+COMMAND  COM        85,480  07-10-2021 11:28p
+FDAUTO   BAT         1,740  06-18-2023 12:49a
+FDCONFIG SYS           872  06-18-2023 12:49a
+KERNEL   SYS        46,256  05-15-2021  2:38a
+         4 file(s)        134,348 bytes
+         1 dir(s)     514,015,232 bytes free
+C:\>cd F
+FDAUTO.BAT    FDCONFIG.SYS  [FREEDOS]
+C:\>cd freedos\temp\
+C:\FREEDOS\TEMP>dir
+ Volume in drive C is FREEDOS2022
+ Volume Serial Number is 1351-0817
+
+ Directory of C:\FREEDOS\TEMP
+
+.                    <DIR>  06-18-2023 12:49a
+..                   <DIR>  06-18-2023 12:49a
+BOOTKIT0 COM           512  06-18-2023  5:11a
+BOOTPA~1 COM        10,752  06-18-2023  5:10a
+         2 file(s)         11,264 bytes
+         2 dir(s)     514,015,232 bytes free
+C:\FREEDOS\TEMP>ß

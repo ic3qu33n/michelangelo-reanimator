@@ -3,6 +3,12 @@
 ######################
 
 *.img
+*.img.lock
+######################
+# RE tool db files#
+######################
+#Rizin files
+*.rzdb
 
 ######################
 # OS generated files #

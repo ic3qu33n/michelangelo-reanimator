@@ -1,0 +1,18 @@
+megs: 512
+romimage: file="/usr/share/bochs/BIOS-bochs-latest", address=0xf0000
+vgaromimage: file="/usr/share/bochs/VGABIOS-lgpl-latest"
+
+
+boot: disk
+ata0-master: type=disk, path="dos_rip.img", mode=flat, translation=auto, cylinders=6192, heads=16, spt=63
+#floppya: 1_44="FD13floppy144_x86Boot.img", status=inserted
+
+config_interface=textconfig
+
+info: action=report
+error: action=report
+panic: action=report
+
+mouse: enabled=0
+
+cpu: ips=90000000
