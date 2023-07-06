@@ -1,4 +1,4 @@
-BITS 16
+[bits 16]
 ;.286			;masm specific
 ;.MODEL TINY		;masm specific
 
@@ -29,7 +29,7 @@ BITS 16
 org 0x7C00
 
 ;******************************************************************************
-SCREEN_MAX			equ	320*200
+;SCREEN_MAX			equ	320*200
 SCREEN_WIDTH		equ	0x140							;;320
 SCREEN_HEIGHT		equ	0xC8							;;200
 ;SCALED_SCREEN_MAX	equ	0x280*SCALE_MULTIPLIER
@@ -40,7 +40,7 @@ OFFSET_SCREEN_H		equ SCALED_SCREEN_H*SCREEN_WIDTH
 ;MBRSPRITE_W			equ	0x10							;;256
 ;MBRSPRITE_AREA		equ	0x7D00							;;320 / * MBRSPRITE_W
 ;NEWSPRITE_AREA		equ	0x2800*SCALE_MULTIPLIER			;;320 / * MBRSPRITE_W
-MBR_SIZE			equ 0x200
+;MBR_SIZE			equ 0x200
 SCALE_MULTIPLIER	equ 4
 
 VGA_PAL_INDEX		equ	0x3C8
@@ -67,11 +67,12 @@ sti
 load_vx_paint:
 	mov ax, 0x0		;reset disk
 	int 13h
-
+	;xor cs, cs
 	push cs
 	pop es
 	push cs
 	pop ds
+;	mov [DefaultDisk], dl
 	;mov ax, 0x07e0
 	;mov es, ax
 	;mov bx, 0x7e00
@@ -81,38 +82,105 @@ load_vx_paint:
 	;mov [VXPaintBuffer], bx
 ;	mov [VXPaintBuffer+2], es
 
-	mov cx, 0x15
+;	mov cx, 0x15
+	mov cx, 0x2
+;	mov cx, 0x0
 	push cx
+	
+	;mov byte [sector_count], 0xD
 	;mov si, 0xD
+	;push si	
+	;;mov word ax, [sector_count]
+	;push sector_count
+	;mov al, 0xD
+	;;push ax
 	mov di, 0x600
 	read_sector:
 		
+		;mov	cl, [al]	;cylinder 0, sector 13 (0xD)
 		mov ax, 0x201	;read twenty sectors of disk, but one at a time bb
 		
 		mov ch, 0
 		;mov	cl, 0xD	;cylinder 0, sector 13 (0xD)
+		;mov	cl, [sector_count]	;cylinder 0, sector 13 (0xD)
 		mov	cl, [sector_count]	;cylinder 0, sector 13 (0xD)
+		;mov	cl, [si]	;cylinder 0, sector 13 (0xD)
+		;mov	cl, [sector_num]	;cylinder 0, sector 13 (0xD)
+		;;xchg bx, bx
 		;mov	cl, 0x3	;cylinder 0, sector 3 (0x3)
 		;mov dx, 0x80 	;from Side 0, drive C:
 		mov dh, 0x0 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
 		;lea bx, VXPaintBuffer
 		mov bx, 0x200
+		;lea bx, di
 		;mov bx, [VXPaintBuffer]		;to buffer BUF in DS
 		;mov [VXPaintBuffer], bx	;to buffer BUF in DS
 		
 		int 13h
-		lea si, [bx]
-		mov cx, 0x100
-		repnz movsw
+		inc cl
+		mov [sector_count], cl
+
+		;;xchg bx, bx
+		;lea si, [bx]
+		mov si, [bx]
+		;mov cx, 0x100
+		mov cx, 0x200
+		;repnz movsb
+		repnz movsb
+		;rep movsw
+		;;xchg bx, bx
 		
 	add di, 512
+	;;pop ax
+	;;add ax, 0x1
+	
+	;inc cl
+	
+
+	;;pop si
 	inc si
+	;mov [sector_count], si
+	;add si, 0x1
+	;pop bx
+	;mov bx, sector_count
+	;add bx, 1
+	;mov [sector_count], bx
+	;add byte [sector_count], 0x1
+	;mov [sector_count], cl
+	;mov [sector_count], ax
+	;mov cx, [sector_count]
+	;inc cx
+	;mov [sector_count], cx
 	pop cx
+	;add [sector_count], cx
+	;mov si, [sector_count]
+	
 	dec cx
-	jnz read_sector
-	jmp 0:0x600
+	;inc cx
+	;mov [num_sectors], cx
+	;add [sector_count], cx
+	;push cx
+	;;push si
+	;cmp cx, 0x0
+	
+
+	;;jnz read_sector
+	
+	;;pop si
+	;pop cx
+	;xchg bx, bx
+	jmp [cs:0x600]
 
 sector_count:
+	db 0x0D
+	;db 0x03
+
+num_sectors:
+	dw 0x0
+
+sector_num equ sector_count+num_sectors
+
+DefaultDisk:
 	db 0xD
 	
 VXend:
