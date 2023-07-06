@@ -43,6 +43,7 @@ OFFSET_SCREEN_H		equ SCALED_SCREEN_H*SCREEN_WIDTH
 ;MBR_SIZE			equ 0x200
 SCALE_MULTIPLIER	equ 4
 
+SIZESECTORCOPY 		equ SCALE_MULTIPLIER * 0x200
 VGA_PAL_INDEX		equ	0x3C8
 VGA_PAL_DATA		equ	0x3C9
 ;******************************************************************************
@@ -98,7 +99,8 @@ load_vx_paint:
 	read_sector:
 		
 		;mov	cl, [al]	;cylinder 0, sector 13 (0xD)
-		mov ax, 0x201	;read twenty sectors of disk, but one at a time bb
+		;mov ax, 0x201	;read twenty sectors of disk, but one at a time bb
+		mov ax, 0x204	;read twenty sectors of disk, but one at a time bb
 		
 		mov ch, 0
 		;mov	cl, 0xD	;cylinder 0, sector 13 (0xD)
@@ -124,7 +126,8 @@ load_vx_paint:
 		;lea si, [bx]
 		mov si, [bx]
 		;mov cx, 0x100
-		mov cx, 0x200
+		;;mov cx, 0x200
+		mov cx, SIZESECTORCOPY
 		;repnz movsb
 		repnz movsb
 		;rep movsw
