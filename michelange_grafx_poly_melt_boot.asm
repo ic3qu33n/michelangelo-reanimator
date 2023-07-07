@@ -41,9 +41,11 @@ OFFSET_SCREEN_H		equ SCALED_SCREEN_H*SCREEN_WIDTH
 ;MBRSPRITE_AREA		equ	0x7D00							;;320 / * MBRSPRITE_W
 ;NEWSPRITE_AREA		equ	0x2800*SCALE_MULTIPLIER			;;320 / * MBRSPRITE_W
 ;MBR_SIZE			equ 0x200
+SECTOR_SIZE			equ 0x200
 SCALE_MULTIPLIER	equ 4
+;SCALE_MULTIPLIER	equ 10
 
-SIZESECTORCOPY 		equ SCALE_MULTIPLIER * 0x200
+;SIZESECTORCOPY 		equ SCALE_MULTIPLIER * 0x200
 VGA_PAL_INDEX		equ	0x3C8
 VGA_PAL_DATA		equ	0x3C9
 ;******************************************************************************
@@ -74,8 +76,9 @@ load_vx_paint:
 	push cs
 	pop ds
 ;	mov [DefaultDisk], dl
-	;mov ax, 0x07e0
-	;mov es, ax
+	mov ax, 0x0600
+	mov es, ax
+	mov ds, ax
 	;mov bx, 0x7e00
 	;mov bx, 0x200
 	;mov bx, 0x200
@@ -85,6 +88,7 @@ load_vx_paint:
 
 ;	mov cx, 0x15
 	mov cx, 0x2
+	;mov cx, 0x1
 ;	mov cx, 0x0
 	push cx
 	
@@ -95,17 +99,24 @@ load_vx_paint:
 	;push sector_count
 	;mov al, 0xD
 	;;push ax
-	mov di, 0x600
+	
+	;mov di, 0x600
+	xor di, di
+	xor si, si
 	read_sector:
 		
 		;mov	cl, [al]	;cylinder 0, sector 13 (0xD)
-		;mov ax, 0x201	;read twenty sectors of disk, but one at a time bb
-		mov ax, 0x204	;read twenty sectors of disk, but one at a time bb
+		mov ax, 0x203	;read twenty sectors of disk, but one at a time bb
+		;mov ax, 0x20A	;read twenty sectors of disk, but one at a time bb
 		
 		mov ch, 0
+		mov cl, 3
 		;mov	cl, 0xD	;cylinder 0, sector 13 (0xD)
-		;mov	cl, [sector_count]	;cylinder 0, sector 13 (0xD)
-		mov	cl, [sector_count]	;cylinder 0, sector 13 (0xD)
+		;mov	byte cl, [sector_count]	;cylinder 0, sector 13 (0xD)
+		;mov word	cl, [sector_count]	;cylinder 0, sector 13 (0xD)
+		
+ 		;;mov cx, sector_count
+		;mov	cl, sector_count	;cylinder 0, sector 13 (0xD)
 		;mov	cl, [si]	;cylinder 0, sector 13 (0xD)
 		;mov	cl, [sector_num]	;cylinder 0, sector 13 (0xD)
 		;;xchg bx, bx
@@ -119,21 +130,44 @@ load_vx_paint:
 		;mov [VXPaintBuffer], bx	;to buffer BUF in DS
 		
 		int 13h
+		;inc [cl]
 		inc cl
-		mov [sector_count], cl
+		;add byte [cl], 1
+		mov byte [sector_count], cl
 
 		;;xchg bx, bx
 		;lea si, [bx]
-		mov si, [bx]
+		;;lea di, [bx]
+		
+		;mov si, [bx]
 		;mov cx, 0x100
 		;;mov cx, 0x200
-		mov cx, SIZESECTORCOPY
+		;mov cx, SECTOR_SIZE*3
+		mov cx, 400
+		loop:
+			mov word ax, [bx]
+			mov word [es:di], ax
+			;mov word ax, [bx+2]
+			;mov word [es:di], ax
+			;add si,4
+			add bx,2
+			add di,2
+			;add bx,4
+			;add di,4
+			
+			;inc si
+			;inc di
+			dec cx
+			cmp cx, 0
+			jnz loop
 		;repnz movsb
-		repnz movsb
+		;repnz movsb
+		repnz
+		;rep movsb
 		;rep movsw
 		;;xchg bx, bx
 		
-	add di, 512
+	;;add di, 512
 	;;pop ax
 	;;add ax, 0x1
 	
@@ -141,7 +175,10 @@ load_vx_paint:
 	
 
 	;;pop si
-	inc si
+	
+	;;inc si
+	
+
 	;mov [sector_count], si
 	;add si, 0x1
 	;pop bx
@@ -154,29 +191,34 @@ load_vx_paint:
 	;mov cx, [sector_count]
 	;inc cx
 	;mov [sector_count], cx
-	pop cx
+	;;;pop cx
 	;add [sector_count], cx
 	;mov si, [sector_count]
 	
-	dec cx
+	;;;dec cx
 	;inc cx
 	;mov [num_sectors], cx
 	;add [sector_count], cx
 	;push cx
 	;;push si
-	;cmp cx, 0x0
+	;cmp byte [sector_count], 0x6
 	
 
-	;;jnz read_sector
+	;;;jnz read_sector
+	;jl read_sector
 	
 	;;pop si
 	;pop cx
 	;xchg bx, bx
-	jmp [cs:0x600]
+	;jmp (boot2nd >> 2):0
+	;jmp boot2nd:0000
+	jmp boot2nd:0
+	;jmp [cs:0x600]
+	;call [cs:0x600]
 
 sector_count:
-	db 0x0D
-	;db 0x03
+	;db 0x0D
+	db 0x03
 
 num_sectors:
 	dw 0x0
@@ -185,6 +227,8 @@ sector_num equ sector_count+num_sectors
 
 DefaultDisk:
 	db 0xD
+
+boot2nd equ 0x600
 	
 VXend:
 	times 510-($-$$) db 0
