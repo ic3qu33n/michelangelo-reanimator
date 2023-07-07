@@ -39,3 +39,4 @@ but far be it from me to tell you how to live your life. If you like that Mondri
 with nested bifurcations, then by all means, live ur truth bb.)
 qemu-system-i386 -m 16 -k en-us -rtc base=localtime -device cirrus-vga -display gtk -hda dos_rip.img -s -S
 qemu-system-i386 -m 16 -k en-us -rtc base=localtime -device cirrus-vga -display gtk -hda dos_rip.img -s -S
+python3 infect_mbr_stoned.py -mbr michelange1ststage.mbr -vxpaint michelange2ndstage.bin  -diskimg dos_rip.img -sector 0 -vxpaintsector 2

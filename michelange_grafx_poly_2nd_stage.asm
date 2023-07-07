@@ -4,7 +4,7 @@
 
 
 ;******************************************************************************
-;	This is the working demo of the malicious MBR/boot sector portion
+;	This is the working demo of part of the malicious MBR/boot sector portion
 ; 	of the Michelangelo REanimator bootkit
 ;	
 ;	Use at your own risk. 
@@ -20,7 +20,14 @@
 ;	nasm -f bin -o michelange_grafx_routines.mbr michelange_grafx_routines.mbr
 ;	
 ;	To run;
-;	qemu-system-i386 -hda michelange_grafx_routines.mbr
+;	qemu-system-i386 -m 16 -rtc base=localtime -device cirrus-vga -display gtk -hda dos_rip.img 
+;	Note: the -rtc -device and -display flag values are all based on what 
+;   I've used on my own machine as configurations that work well for my use cases.  
+;   You may need to adjust them as needed for your own host machine and 
+;   what you have installed.
+;	To run in a debug session with GDB attached:
+;	qemu-system-i386 -m 16 -rtc base=localtime -device cirrus-vga -display gtk -hda dos_rip.img -s -S
+;	(see debugging notes for details on setup of GDBi/Bochs session) 
 ;
 ;
 ;******************************************************************************
@@ -123,7 +130,7 @@ gen_rand_num:
 	cmp word [randtimer], 30
 	jge gen_rand_shifts
 	mov [randshift0], ax
-	jmp paint_setup
+;	jmp paint_setup
 	;jmp set_pal
 
 gen_rand_shifts:
@@ -132,7 +139,7 @@ gen_rand_shifts:
 	add ax, [randshiftnum]
 	mov [randshift0], ax
 	pop ax
-	jmp paint_setup
+;	jmp paint_setup
 ;;	randshift0 equ (randtimer+randshiftnum)
 
 set_pal:
@@ -164,7 +171,7 @@ paint_setup:
 	;push si
 ;	mov cx, 8
 	mov	cx, SCALED_SCREEN_W
-	shr cx, 1
+	shr cx, 2
 ;	shl cx, 1
 	xor di, di
 	paint_loop:
