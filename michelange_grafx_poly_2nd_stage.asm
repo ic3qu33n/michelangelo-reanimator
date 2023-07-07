@@ -197,7 +197,7 @@ paint_setup:
 					mov ax, ds:[si]
 					;mov ax, [si]
 					or al, es:[di]
-					;add al, 0x01
+					add al, 0x01
 					;add al, [randtimer]
 					;add al, [randshiftnum]
 					mov es:[di], al 
