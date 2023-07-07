@@ -94,11 +94,11 @@ VGA_PAL_DATA		equ	0x3C9
 ;org 0x600 
 org 0x0 
 
-jmp VXPaintBuffer
+;jmp VXPaintBuffer
 
 vga_init:
-	pop si
-	push si	
+;;*here	pop si
+;;*here	push si	
 	mov	ax,0xA000
 	;mov	ax,0xB800
 	mov	es,ax
@@ -160,7 +160,7 @@ set_pal:
 
 
 paint_setup:
-	pop si
+;*here*	pop si
 	;push si
 ;	mov cx, 8
 	mov	cx, SCALED_SCREEN_W
@@ -173,8 +173,8 @@ paint_setup:
 		mbr_paint:
 			;pop si
 			;lea si, MichelAngeBitmap
-			mov si, $-VXPaintBuffer+3
-			;lea si, VXPaintBuffer+3
+			;mov si, $-VXPaintBuffer+3
+			lea si, $-VXPaintBuffer+3
 			
 			push si
 			push cs
@@ -201,10 +201,11 @@ paint_setup:
 					;add al, [randtimer]
 					;add al, [randshiftnum]
 					mov es:[di], al 
-					mov es:[di+2], al 
+					;;mov es:[di], ah
+					;;mov es:[di+2], al 
 					inc si
-					;inc di
-					add di, 4
+					inc di
+					;;add di, 4
 					dec dx
 					jnz vga_mbr_x
 				;add si, 128

@@ -76,7 +76,8 @@ load_vx_paint:
 	push cs
 	pop ds
 ;	mov [DefaultDisk], dl
-	mov ax, 0x0600
+	;mov ax, 0x0600
+	mov ax, 0x0900
 	mov es, ax
 	mov ds, ax
 	;mov bx, 0x7e00
@@ -106,8 +107,8 @@ load_vx_paint:
 	read_sector:
 		
 		;mov	cl, [al]	;cylinder 0, sector 13 (0xD)
-		mov ax, 0x203	;read twenty sectors of disk, but one at a time bb
-		;mov ax, 0x20A	;read twenty sectors of disk, but one at a time bb
+		;mov ax, 0x203	;read twenty sectors of disk, but one at a time bb
+		mov ax, 0x20A	;read twenty sectors of disk, but one at a time bb
 		
 		mov ch, 0
 		mov cl, 3
@@ -143,7 +144,7 @@ load_vx_paint:
 		;mov cx, 0x100
 		;;mov cx, 0x200
 		;mov cx, SECTOR_SIZE*3
-		mov cx, 400
+		mov cx, 1600
 		loop:
 			mov word ax, [bx]
 			mov word [es:di], ax
@@ -228,7 +229,8 @@ sector_num equ sector_count+num_sectors
 DefaultDisk:
 	db 0xD
 
-boot2nd equ 0x600
+;boot2nd equ 0x600
+boot2nd equ 0x900
 	
 VXend:
 	times 510-($-$$) db 0
