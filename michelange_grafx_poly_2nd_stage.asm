@@ -58,8 +58,6 @@ vga_init:
 	mov	ax, 0x13
 	int	10h
 	cld
-;	jmp paint_setup
-;	jmp bmp_setup
 
 gen_rand_num:
 	push ax
@@ -74,8 +72,6 @@ gen_rand_num:
 	cmp word [randtimer], 30
 	jge gen_rand_shifts
 	mov [randshift0], ax
-;	jmp paint_setup
-	;jmp set_pal
 
 gen_rand_shifts:
 	push ax
@@ -83,7 +79,6 @@ gen_rand_shifts:
 	add ax, [randshiftnum]
 	mov [randshift0], ax
 	pop ax
-;	jmp paint_setup
 ;;	randshift0 equ (randtimer+randshiftnum)
 
 set_pal:
@@ -107,14 +102,13 @@ set_pal:
 		out	dx,al
 		inc	ax
 		jnz	pal_1
-	;jmp 	bmp_setup
 
 
 paint_setup:
 ;*here*	pop si
 	;push si
 	mov	cx, SCALED_SCREEN_W
-	shr cx, 2
+	shr cx, 4
 	xor di, di
 	paint_loop:
 		push 	di
@@ -132,8 +126,8 @@ paint_setup:
 				vga_mbr_x:
 					mov ax, ds:[si]
 					or al, es:[di]
-					add al, 0x01
-					;add al, [randtimer]
+					;add al, 0x01
+					add al, [randtimer]
 					;add al, [randshiftnum]
 					mov es:[di], al 
 					inc si
