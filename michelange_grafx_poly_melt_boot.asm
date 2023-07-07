@@ -108,7 +108,7 @@ load_vx_paint:
 		
 		;mov	cl, [al]	;cylinder 0, sector 13 (0xD)
 		;mov ax, 0x203	;read twenty sectors of disk, but one at a time bb
-		mov ax, 0x20A	;read twenty sectors of disk, but one at a time bb
+		mov ax, 0x215	;read twenty sectors of disk, but one at a time bb
 		
 		mov ch, 0
 		mov cl, 3
@@ -144,7 +144,7 @@ load_vx_paint:
 		;mov cx, 0x100
 		;;mov cx, 0x200
 		;mov cx, SECTOR_SIZE*3
-		mov cx, 1600
+		mov cx, 2400
 		loop:
 			mov word ax, [bx]
 			mov word [es:di], ax
