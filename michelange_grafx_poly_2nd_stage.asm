@@ -38,7 +38,8 @@ SCREEN_WIDTH		equ	0x140							;;320
 SCALED_SCREEN_MAX	equ SCALED_SCREEN_W*SCALED_SCREEN_H
 SCALED_SCREEN_W		equ	0x20*SCALE_MULTIPLIER			;;320 / 10
 SCALED_SCREEN_H		equ	0x14*SCALE_MULTIPLIER			;;200 / 10 
-OFFSET_SCREEN_H		equ SCALED_SCREEN_H*SCREEN_WIDTH
+;OFFSET_SCREEN_H		equ SCALED_SCREEN_H*SCREEN_WIDTH
+OFFSET_SCREEN_H		equ SCALED_SCREEN_H+SCREEN_WIDTH
 NEWSPRITE_AREA		equ	0x2800
 SCALE_MULTIPLIER	equ 4
 
@@ -79,6 +80,7 @@ gen_rand_shifts:
 	add ax, [randshiftnum]
 	mov [randshift0], ax
 	pop ax
+;;	jmp paint_setup
 ;;	randshift0 equ (randtimer+randshiftnum)
 
 set_pal:
@@ -87,9 +89,10 @@ set_pal:
 	out	dx, al
 	inc	dx
 	pal_1:
-		;or ax, [randshift0]
+		;add ax, [randshift0]
 		or	ax,0000111100110011b
-		or ax, [randtimer]
+		;or ax, [randtimer]
+		or ax, [randshift0]
 		push	ax
 		shr	ax, 10
 		;shr	ax, randshift0
@@ -99,6 +102,7 @@ set_pal:
 		shl	ax, 6
 		out 	dx,al
 		pop	ax
+		mov [crypt_key], ax
 		out	dx,al
 		inc	ax
 		jnz	pal_1
@@ -107,15 +111,19 @@ set_pal:
 paint_setup:
 ;*here*	pop si
 	;push si
-	mov	cx, SCALED_SCREEN_W
-	shr cx, 4
+;	mov	cx, SCALED_SCREEN_W
+	mov	cx, 0x2
+	;shr cx, 8
+;	shr cx, 3
 	xor di, di
 	paint_loop:
 		push 	di
 		push	cx
 		mbr_paint:
-			lea si, $-VXPaintBuffer+3
-			push si
+			;lea si, $-VXPaintBuffer+3
+			;mov si, VXPaintBuffer+3
+			mov si, VXPaintstart
+;;			push si
 			push cs
 			pop ds
 			
@@ -126,33 +134,41 @@ paint_setup:
 				vga_mbr_x:
 					mov ax, ds:[si]
 					or al, es:[di]
-					;add al, 0x01
-					add al, [randtimer]
+					add al, 0x01
+					;;add al, [randtimer]
 					;add al, [randshiftnum]
-					mov es:[di], al 
+					;mov es:[di], ax
+					mov es:[di], al
+					;mov es:[di+2], al
+					;;this line will just draw a black pixel es:[di+2]
+					;mov es:[di+2], ah
 					inc si
 					inc di
+					;add di,4
 					dec dx
 					jnz vga_mbr_x
 				pop di
 				;add di, OFFSET_SCREEN_H
 				add di, SCREEN_WIDTH
-				dec bx
+				sub bx, SCALED_SCREEN_W
+				;dec bx
 				jnz vga_mbr_y
-			pop si
+;;			pop si
 		pop		cx
 		pop 	di
 		add		di, NEWSPRITE_AREA
+		;add		di, OFFSET_SCREEN_H
 		dec 	cx
 		jnz	paint_loop
 
 rsvp:
 	mov cx, greetz_len
 	mov si, greetz
+message:
 	push cs
 	pop ds
 welcome:
-	mov al, [si]
+	mov al, ds:[si]
 	mov bh, 0
 	mov bl, 0x0F
 	mov ah, 0x0E
@@ -160,8 +176,24 @@ welcome:
 	inc si
 	dec cx
 	jnz welcome
-	jmp key_check
 
+;rsvp2:
+;	mov cx, 2
+;	mov si, crypt_key
+;message2:
+;	push cs
+;	pop ds
+;welcome2:
+;	mov al, [si]
+;	mov bh, 0
+;	mov bl, 0x0F
+;	mov ah, 0x0E
+;	int 0x10
+;	inc si
+;	dec cx
+;	jnz welcome2
+;	;jmp key_check
+;
 ;******************************************************************************
 ;
 ;	Reads char from buffer (function 0h,int16h)
@@ -176,6 +208,8 @@ key_check:
 	;;check for keypress
 	cmp	al, 1
 	jnz	baibai
+	;jnz	load_og_mbr
+	;jmp	load_og_mbr
 ;******************************************************************************
 ;
 ;	hlt infinite loop
@@ -186,12 +220,57 @@ baibai:
 	hlt	
 	jmp baibai
 
+;load_og_mbr:
+;	mov ax, 0x0		;reset disk
+;	int 13h
+;	push cs
+;	pop es
+;	push cs
+;	pop ds
+;	mov ax, 0x07e0
+;	mov es, ax
+;	mov ds, ax
+;
+;	xor di, di
+;	xor si, si
+;	read_sector:
+;		mov ax, 0x201	;read twenty one sectors of disk
+;		mov ch, 0
+;		mov cl, 3		;cylinder 0, sector 3 
+;		mov dh, 0x0 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
+;		;mov bx, 0x200
+;		lea bx, mbr_buffer
+;		int 13h
+;		
+;		;inc cl
+;		;mov byte [sector_count], cl
+;		mov cx, 200
+;		loop:
+;			mov word ax, [bx]
+;			mov word [es:di], ax
+;			add bx,2
+;			add di,2
+;			dec cx
+;			cmp cx, 0
+;			jnz loop
+;		repnz
+;	
+;	
+;	jmp bootfinal:0
+;
+;bootfinal equ 0x07e0
+
+
+
+
 greetz:
 	db "u know u luv me", 0Dh, 0Ah
 	db "xoxo", 0Dh, 0Ah
 	db "ic3qu33n", 0Dh, 0Ah
-
 greetz_len	equ $-greetz
+
+crypt_key:
+	dw 0
 	
 randtimer:
 	db 0
@@ -205,6 +284,11 @@ randshift1 equ (randshift0 - 2)
 VXend:
 	times 512-($-$$) db 0
 
+;mbr_buffer:
+;	times 512-($-$$) db 0
+
+VXPaintstart equ $+3
+ 
 VXPaintBuffer: 
 call vga_init
 db 0xe1,0xe1,0xe1,0xe6,0xe6,0xe6,0xe1,0xe6,0xe6,0xe6,0xe6,0xe6,0xe6,0xe6,0xe1,0xe1,0xdc,0xe2,0xe1,0xe1,0xdc,0xdc,0xe1,0xe2,0xe1,0xdc,0xcf,0xcf,0xcf,0xdc,0xdc,0xdc,0xdc,0xcf,0xcf,0xcf,0xcf,0xdc,0xe1,0xdc,0xdc,0xe1,0xe2,0xd9,0xcf,0xcf,0xcf,0xd6,0xd9,0xd6,0xcf,0xd9,0xcf,0xcf,0xcf,0xcf,0xcf,0xcf,0xc8,0xcf,0xcf,0xcf,0xd6,0xcf,0xd6,0xd9,0xd9,0xd9,0xdc,0xdc,0xdc,0xe2,0xe2,0xe2,0xe6,0xe6,0xe6,0xe7,0xe7,0xea,0xee,0xee,0xee,0xed,0xee,0xef,0xf0,0xf1,0xf1,0xf2,0xf3,0xf4,0xf5,0xf5,0xf5,0xf6,0xf6,0xf6,0xf6,0xf7,0xf7,0xf8,0xf7,0xf8,0xf9,0xf9,0xf9,0xf9,0xf8,0xf7,0xf7,0xf7,0xf7,0xf6,0xf6,0xf7,0xf7,0xf5,0xf4,0xf4,0xf4,0xf4,0xf4,0xf4,0xf4

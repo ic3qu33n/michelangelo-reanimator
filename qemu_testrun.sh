@@ -41,7 +41,7 @@ cd FREEDOS
 ##new file name should be decriptive but < 8 chars bc filename len limits bb
 #qemu-system-i386 -m 16 -k en-us -rtc base=localtime -device cirrus-vga -display gtk -hda dos_rip.img  
 #sudo cp ~/Desktop/b00tkit_testing/grafx_test.com gtest.com
-sudo cp ~/Desktop/b00tkit_testing/$BIN2copy .
+sudo cp ~/Desktop/b00tkit_testing/$BIN2copy infector.com
 cd ~/Desktop/b00tkit_testing
 
 #Here the sudo umount is absolutely essential
@@ -54,4 +54,4 @@ sudo umount /tmp/dos
 #
 ##qemu-system-i386 -m 16 -k en-us -rtc base=localtime -device cirrus-vga -display gtk -hda dos_rip.img   
 #qemu-system-i386 -m 16 -k en-us -rtc base=localtime -device cirrus-vga -display gtk -hda newdos_clone0.img
-qemu-system-i386 -m 16 -k en-us -rtc base=localtime -device cirrus-vga -display gtk -hda $TESTDISK
+qemu-system-i386 -m 16 -device cirrus-vga -display gtk -hda $TESTDISK
