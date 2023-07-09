@@ -40,7 +40,10 @@ SCALED_SCREEN_W		equ	0x20*SCALE_MULTIPLIER			;;320 / 10
 SCALED_SCREEN_H		equ	0x14*SCALE_MULTIPLIER			;;200 / 10 
 ;OFFSET_SCREEN_H		equ SCALED_SCREEN_H*SCREEN_WIDTH
 OFFSET_SCREEN_H		equ SCALED_SCREEN_H+SCREEN_WIDTH
-NEWSPRITE_AREA		equ	0x2800
+;NEWSPRITE_AREA		equ	0x2800
+;SPRITE_AREA			equ	0x2800
+SPRITE_AREA			equ	0x3200		;area of sprite is 0x2800; add 0x400 padding
+NEWSPRITE_AREA		equ	0x2800*SCALE_MULTIPLIER
 SCALE_MULTIPLIER	equ 4
 
 VGA_PAL_INDEX		equ	0x3C8
@@ -70,9 +73,11 @@ gen_rand_num:
 	mov [randshiftnum], ah
 	pop es
 	pop ax
-	cmp word [randtimer], 30
+	cmp word [randtimer], 10
 	jge gen_rand_shifts
-	mov [randshift0], ax
+	mov dx, ax
+	shl dx, 1
+	mov [randshift0], dx
 
 gen_rand_shifts:
 	push ax
@@ -90,9 +95,11 @@ set_pal:
 	inc	dx
 	pal_1:
 		;add ax, [randshift0]
+		;mov ax, randshift0
+		;shr ax, randshiftnum
 		or	ax,0000111100110011b
-		;or ax, [randtimer]
-		or ax, [randshift0]
+		or ax, [randtimer]
+		;and ax, [randshift0]
 		push	ax
 		shr	ax, 10
 		;shr	ax, randshift0
@@ -111,8 +118,8 @@ set_pal:
 paint_setup:
 ;*here*	pop si
 	;push si
-;	mov	cx, SCALED_SCREEN_W
-	mov	cx, 0x2
+	;mov	cx, SCALED_SCREEN_W
+	mov	cx, 0x8
 	;shr cx, 8
 ;	shr cx, 3
 	xor di, di
@@ -133,9 +140,11 @@ paint_setup:
 				mov dx, SCALED_SCREEN_W
 				vga_mbr_x:
 					mov ax, ds:[si]
+					;add al, 0x01
 					or al, es:[di]
 					add al, 0x01
-					;;add al, [randtimer]
+					add al, [randtimer]
+					;or al, es:[di]
 					;add al, [randshiftnum]
 					;mov es:[di], ax
 					mov es:[di], al
@@ -156,7 +165,9 @@ paint_setup:
 ;;			pop si
 		pop		cx
 		pop 	di
-		add		di, NEWSPRITE_AREA
+	;	add		di, NEWSPRITE_AREA
+		;add di, OFFSET_SCREEN_H
+		add		di, SPRITE_AREA
 		;add		di, OFFSET_SCREEN_H
 		dec 	cx
 		jnz	paint_loop
@@ -176,6 +187,8 @@ welcome:
 	inc si
 	dec cx
 	jnz welcome
+
+;;	jmp	load_og_mbr
 
 ;rsvp2:
 ;	mov cx, 2
@@ -209,7 +222,7 @@ key_check:
 	cmp	al, 1
 	jnz	baibai
 	;jnz	load_og_mbr
-	;jmp	load_og_mbr
+;	jmp	load_og_mbr
 ;******************************************************************************
 ;
 ;	hlt infinite loop
@@ -220,45 +233,62 @@ baibai:
 	hlt	
 	jmp baibai
 
-;load_og_mbr:
-;	mov ax, 0x0		;reset disk
-;	int 13h
-;	push cs
-;	pop es
-;	push cs
-;	pop ds
-;	mov ax, 0x07e0
-;	mov es, ax
-;	mov ds, ax
-;
-;	xor di, di
-;	xor si, si
-;	read_sector:
-;		mov ax, 0x201	;read twenty one sectors of disk
-;		mov ch, 0
-;		mov cl, 3		;cylinder 0, sector 3 
-;		mov dh, 0x0 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
-;		;mov bx, 0x200
-;		lea bx, mbr_buffer
-;		int 13h
-;		
-;		;inc cl
-;		;mov byte [sector_count], cl
-;		mov cx, 200
-;		loop:
-;			mov word ax, [bx]
-;			mov word [es:di], ax
-;			add bx,2
-;			add di,2
-;			dec cx
-;			cmp cx, 0
-;			jnz loop
-;		repnz
-;	
-;	
+load_og_mbr:
+	xchg bx, bx
+	mov ax, 0x0		;reset disk
+	int 13h
+	;push cs
+	;pop es
+	;push cs
+	;pop ds
+	mov ax, 0x07c0
+	mov es, ax
+	mov ds, ax
+	;xor ax, ax
+	;mov ds, ax
+	;mov cs, ax
+	;mov di, 0x7c00
+	xor di, di
+	xor si, si
+	read_sector:
+		mov ax, 0x201	;read twenty one sectors of disk
+		mov ch, 0
+		mov cl, 3		;cylinder 0, sector 3 
+		;mov dh, 0x0 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
+		;mov dh, 0x80 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
+		;mov bx, 0x200
+		mov bx, mbr_buffer
+		;mov bx, 0
+		;mov bx, mbr_buffer
+		;mov bx, 0x7c00
+		int 13h
+	;jmp [es:bx]
+	;jmp [bx]
+	xchg bx, bx
 ;	jmp bootfinal:0
-;
-;bootfinal equ 0x07e0
+		
+		;inc cl
+		;mov byte [sector_count], cl
+	lea si, [bx]
+	mov cx, 0x100
+	loop:
+		;mov ax, [es:bx]
+		mov ax, [bx]
+		mov ds:[di], ax
+		;xchg bx, bx
+		add bx,2
+		add di,2
+		dec cx
+		cmp cx, 0
+		jnz loop
+;		repnz
+	xchg bx, bx
+	
+	
+	jmp bootfinal:0
+	;jmp 0:bootfinal
+
+bootfinal equ 0x07c0
 
 
 
@@ -284,8 +314,8 @@ randshift1 equ (randshift0 - 2)
 VXend:
 	times 512-($-$$) db 0
 
-;mbr_buffer:
-;	times 512-($-$$) db 0
+mbr_buffer:
+	times 512-($-$$) db 0
 
 VXPaintstart equ $+3
  
