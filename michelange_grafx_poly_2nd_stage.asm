@@ -54,6 +54,8 @@ org 0x0
 vga_init:
 ;;*here	pop si
 ;;*here	push si	
+	mov	ax, 0x06
+	int	10h
 	mov	ax,0xA000
 	;mov	ax,0xB800
 	mov	es,ax
@@ -62,6 +64,7 @@ vga_init:
 	mov	ax, 0x13
 	int	10h
 	cld
+
 
 gen_rand_num:
 	push ax
@@ -101,8 +104,8 @@ set_pal:
 		or ax, [randtimer]
 		;and ax, [randshift0]
 		push	ax
-		shr	ax, 10
-		;shr	ax, randshift0
+		;shr	ax, 10
+		shr	ax, randshift0
 		out	dx,al
 		mul	al
 		;shl	ax, randshift1
@@ -118,10 +121,10 @@ set_pal:
 paint_setup:
 ;*here*	pop si
 	;push si
-	;mov	cx, SCALED_SCREEN_W
-	mov	cx, 0x8
+;	mov	cx, SCALED_SCREEN_W
+	mov	cx, 4
 	;shr cx, 8
-;	shr cx, 3
+	;shr cx, 3
 	xor di, di
 	paint_loop:
 		push 	di
@@ -140,20 +143,19 @@ paint_setup:
 				mov dx, SCALED_SCREEN_W
 				vga_mbr_x:
 					mov ax, ds:[si]
-					;add al, 0x01
-					or al, es:[di]
+					or ax, es:[di]
+					and al, 11111111b
 					add al, 0x01
 					add al, [randtimer]
-					;or al, es:[di]
-					;add al, [randshiftnum]
+					sub al, [randshiftnum]
 					;mov es:[di], ax
 					mov es:[di], al
-					;mov es:[di+2], al
-					;;this line will just draw a black pixel es:[di+2]
-					;mov es:[di+2], ah
+					;mov es:[di+320], al
+					;mov es:[di+2], al 
 					inc si
 					inc di
-					;add di,4
+					;add si,2
+					;add di,2
 					dec dx
 					jnz vga_mbr_x
 				pop di
@@ -187,6 +189,23 @@ welcome:
 	inc si
 	dec cx
 	jnz welcome
+
+rsvp2:
+	mov cx, 2
+	mov si, crypt_key
+message2:
+	push cs
+	pop ds
+welcome2:
+	mov al, [si]
+	mov bh, 0
+	mov bl, 0x0F
+	mov ah, 0x0E
+	int 0x10
+	inc si
+	dec cx
+	jnz welcome2
+	;jmp key_check
 
 ;;	jmp	load_og_mbr
 
