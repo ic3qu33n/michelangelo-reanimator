@@ -91,6 +91,13 @@ gen_rand_shifts:
 ;;	jmp paint_setup
 ;;	randshift0 equ (randtimer+randshiftnum)
 
+;******************************************************************************
+;	Palette routine adapted from "Symetrie" and "Atraktor" by Rrrola
+;	 https://abaddon.hu/256b/colors.html 
+;
+;******************************************************************************
+
+
 set_pal:
 	salc				;set carry flag in al, if carry flag set, al=0
 	mov	dx,VGA_PAL_INDEX	;
