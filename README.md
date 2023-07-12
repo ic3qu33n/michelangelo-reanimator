@@ -25,14 +25,13 @@ ic3qu33n
 Michelangelo REanimator
 Bootkit Technical Specs
 
-
-[A screenshot of the graphics payload displayed by the Michelangelo REanimator bootkit, a sprite (pixelated image) is displayed in a repeated pattern across the screen; the sprite is a drawing of a study of Michelangeo's Pieta, thus the image is of a woman (Mary) holding the body of her son (Jesus); color palette of the entire image is a range of pinks and blues, but each sprite tile has a slightly altered subset of colors from that palette.][./vx-art-images/michelangelo-reanimator-demo-screenshot-3.png]
-
-
-[A screenshot of the graphics payload displayed by the Michelangelo REanimator bootkit, a sprite (pixelated image) is displayed in a repeated pattern across the screen; the sprite is a drawing of a study of Michelangeo's Pieta, thus the image is of a woman (Mary) holding the body of her son (Jesus); color palette of the entire image is a range of shades that range from reds and pinks to yellow and green to dark blues; nearly the entire rainbow can be seen in pixels sprinkled throughout; , but each sprite tile has a slightly altered subset of colors from that palette.][./vx-art-images/michelangelo-reanimator-demo-screenshot-0.png]
+[A screenshot of the graphics payload displayed by the Michelangelo REanimator bootkit, a sprite (pixelated image) is displayed in a repeated pattern across the screen; the sprite is a drawing of a study of Michelangeo's Pieta, thus the image is of a woman (Mary) holding the body of her son (Jesus); color palette of the entire image is a range of pinks and blues, but each sprite tile has a slightly altered subset of colors from that palette.][./vx_art_images/michelangelo-reanimator-demo-screenshot-3.png]
 
 
-[A screenshot of the graphics payload displayed by the Michelangelo REanimator bootkit, a sprite (pixelated image) is displayed in a repeated pattern across the screen; the sprite is a drawing of a study of Michelangeo's Pieta, thus the image is of a woman (Mary) holding the body of her son (Jesus); color palette of the entire image is a range of shades, primarily dark blue, olive green, magenta and pinks, yellow and some light green;, but each sprite tile has a slightly altered subset of colors from that palette.][./vx-art-images/michelangelo-reanimator-demo-screenshot-1.png]
+[A screenshot of the graphics payload displayed by the Michelangelo REanimator bootkit, a sprite (pixelated image) is displayed in a repeated pattern across the screen; the sprite is a drawing of a study of Michelangeo's Pieta, thus the image is of a woman (Mary) holding the body of her son (Jesus); color palette of the entire image is a range of shades that range from reds and pinks to yellow and green to dark blues; nearly the entire rainbow can be seen in pixels sprinkled throughout; , but each sprite tile has a slightly altered subset of colors from that palette.][./vx_art_images/michelangelo-reanimator-demo-screenshot-0.png]
+
+
+[A screenshot of the graphics payload displayed by the Michelangelo REanimator bootkit, a sprite (pixelated image) is displayed in a repeated pattern across the screen; the sprite is a drawing of a study of Michelangeo's Pieta, thus the image is of a woman (Mary) holding the body of her son (Jesus); color palette of the entire image is a range of shades, primarily dark blue, olive green, magenta and pinks, yellow and some light green;, but each sprite tile has a slightly altered subset of colors from that palette.][./vx_art_images/michelangelo-reanimator-demo-screenshot-1.png]
 
 In many bootkits that target MBRs, there will be a routine in the virus for copying the partition table
 of the original MBR to offset 0x1BE in the viral MBR. This ensures  that the viral MBR is still a valid MBR
@@ -97,7 +96,7 @@ The code for the palette routine was based heavily on that of two palettes by Rr
 
 
 
-[A screenshot of the graphics payload displayed by the Michelangelo REanimator bootkit, a sprite (pixelated image) is displayed in a repeated pattern across the screen; the sprite is a drawing of a study of Michelangeo's Pieta, thus the image is of a woman (Mary) holding the body of her son (Jesus); color palette of the entire image is a range of most pastel shades (orange, pink and green), on a background of cerulean blue, with accents of dark purple and green, but each sprite tile has a slightly altered subset of colors from that palette.][./vx-art-images/michelangelo-reanimator-demo-screenshot-2.png]
+[A screenshot of the graphics payload displayed by the Michelangelo REanimator bootkit, a sprite (pixelated image) is displayed in a repeated pattern across the screen; the sprite is a drawing of a study of Michelangeo's Pieta, thus the image is of a woman (Mary) holding the body of her son (Jesus); color palette of the entire image is a range of most pastel shades (orange, pink and green), on a background of cerulean blue, with accents of dark purple and green, but each sprite tile has a slightly altered subset of colors from that palette.][./vx_art_images/michelangelo-reanimator-demo-screenshot-2.png]
 
 The second stage payload also does the following:
 -uses polymorphism to ensure that the graphical payload mutates slightly on each iteration
