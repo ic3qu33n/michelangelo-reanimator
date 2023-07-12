@@ -25,13 +25,13 @@ ic3qu33n
 Michelangelo REanimator
 Bootkit Technical Specs
 
-[A screenshot of the graphics payload displayed by the Michelangelo REanimator bootkit, a sprite (pixelated image) is displayed in a repeated pattern across the screen; the sprite is a drawing of a study of Michelangeo's Pieta, thus the image is of a woman (Mary) holding the body of her son (Jesus); color palette of the entire image is a range of pinks and blues, but each sprite tile has a slightly altered subset of colors from that palette.][./vx_art_images/michelangelo-reanimator-demo-screenshot-3.png]
+![A screenshot of the graphics payload displayed by the Michelangelo REanimator bootkit, a sprite (pixelated image) is displayed in a repeated pattern across the screen; the sprite is a drawing of a study of Michelangeo's Pieta, thus the image is of a woman (Mary) holding the body of her son (Jesus); color palette of the entire image is a range of pinks and blues, but each sprite tile has a slightly altered subset of colors from that palette.](./vx_art_images/michelangelo-reanimator-demo-screenshot-3.png)
 
 
-[A screenshot of the graphics payload displayed by the Michelangelo REanimator bootkit, a sprite (pixelated image) is displayed in a repeated pattern across the screen; the sprite is a drawing of a study of Michelangeo's Pieta, thus the image is of a woman (Mary) holding the body of her son (Jesus); color palette of the entire image is a range of shades that range from reds and pinks to yellow and green to dark blues; nearly the entire rainbow can be seen in pixels sprinkled throughout; , but each sprite tile has a slightly altered subset of colors from that palette.][./vx_art_images/michelangelo-reanimator-demo-screenshot-0.png]
+![A screenshot of the graphics payload displayed by the Michelangelo REanimator bootkit, a sprite (pixelated image) is displayed in a repeated pattern across the screen; the sprite is a drawing of a study of Michelangeo's Pieta, thus the image is of a woman (Mary) holding the body of her son (Jesus); color palette of the entire image is a range of shades that range from reds and pinks to yellow and green to dark blues; nearly the entire rainbow can be seen in pixels sprinkled throughout; , but each sprite tile has a slightly altered subset of colors from that palette.](./vx_art_images/michelangelo-reanimator-demo-screenshot-0.png)
 
 
-[A screenshot of the graphics payload displayed by the Michelangelo REanimator bootkit, a sprite (pixelated image) is displayed in a repeated pattern across the screen; the sprite is a drawing of a study of Michelangeo's Pieta, thus the image is of a woman (Mary) holding the body of her son (Jesus); color palette of the entire image is a range of shades, primarily dark blue, olive green, magenta and pinks, yellow and some light green;, but each sprite tile has a slightly altered subset of colors from that palette.][./vx_art_images/michelangelo-reanimator-demo-screenshot-1.png]
+![A screenshot of the graphics payload displayed by the Michelangelo REanimator bootkit, a sprite (pixelated image) is displayed in a repeated pattern across the screen; the sprite is a drawing of a study of Michelangeo's Pieta, thus the image is of a woman (Mary) holding the body of her son (Jesus); color palette of the entire image is a range of shades, primarily dark blue, olive green, magenta and pinks, yellow and some light green;, but each sprite tile has a slightly altered subset of colors from that palette.](./vx_art_images/michelangelo-reanimator-demo-screenshot-1.png)
 
 In many bootkits that target MBRs, there will be a routine in the virus for copying the partition table
 of the original MBR to offset 0x1BE in the viral MBR. This ensures  that the viral MBR is still a valid MBR
@@ -111,9 +111,9 @@ Here are some demo videos of the bootkit after it has infected a target disk.
 *Warning, mild flashing lights warning on both videos.*
 
 
-[A video of the graphics payload displayed by the Michelangelo REanimator bootkit, a sprite (pixelated image) is displayed in a repeated pattern across the screen; the sprite is a drawing of a study of Michelangeo's Pieta, thus the image is of a woman (Mary) holding the body of her son (Jesus); color palette of the entire image changes each frame, so the result is that the animation of the sprite shifts colors; the effect is somewhat of a trip, between iridescent waterfall of holy image and shimmering mirage in the desert.][./vx-art-images/michelangelo-reanimator-demo-vid-0.mov]
+![A video of the graphics payload displayed by the Michelangelo REanimator bootkit, a sprite (pixelated image) is displayed in a repeated pattern across the screen; the sprite is a drawing of a study of Michelangeo's Pieta, thus the image is of a woman (Mary) holding the body of her son (Jesus); color palette of the entire image changes each frame, so the result is that the animation of the sprite shifts colors; the effect is somewhat of a trip, between iridescent waterfall of holy image and shimmering mirage in the desert.](./vx-art-images/michelangelo-reanimator-demo-vid-0.mov)
 
-[A video of the graphics payload displayed by the Michelangelo REanimator bootkit, a sprite (pixelated image) is displayed in a repeated pattern across the screen; the sprite is a drawing of a study of Michelangeo's Pieta, thus the image is of a woman (Mary) holding the body of her son (Jesus); color palette of the entire image changes each frame, so the result is that the animation of the sprite shifts colors; the effect is somewhat of a trip, between iridescent waterfall of holy image and shimmering mirage in the desert.][./vx-art-images/michelangelo-reanimator-demo-vid-1.mov]
+![A video of the graphics payload displayed by the Michelangelo REanimator bootkit, a sprite (pixelated image) is displayed in a repeated pattern across the screen; the sprite is a drawing of a study of Michelangeo's Pieta, thus the image is of a woman (Mary) holding the body of her son (Jesus); color palette of the entire image changes each frame, so the result is that the animation of the sprite shifts colors; the effect is somewhat of a trip, between iridescent waterfall of holy image and shimmering mirage in the desert.](./vx-art-images/michelangelo-reanimator-demo-vid-1.mov)
 
 
 
@@ -127,14 +127,16 @@ For debugging setups on other machines (i.e. testing on a machine with an x86 pr
   
 In one terminal window (I recommend running these two commands in separate terminal windows and not a single window running
 a terminal multiplexer, due to how gdb is already going to be using a split layout in one window).   
+```
 gdb-multiarch -q --nh -ex 'set architecture i8086' -ex 'file dos_rip.img' -ex 'target remote localhost:1234' -ex 'layout split' -ex 'layout regs'  
-  
+```  
   
 In another terminal window (again I'm recommending to run these in two different windows and not a split paneled tmux session,
 but far be it from me to tell you how to live your life. If you like that Mondrian kd-tree-style layout of a terminal window
 with nested bifurcations, then by all means, live ur truth bb.)  
-  
+
+```  
 qemu-system-i386 -m 16 -k en-us -rtc base=localtime -device cirrus-vga -display gtk -hda dos_rip.img -s -S   
 qemu-system-i386 -m 16 -k en-us -rtc base=localtime -device cirrus-vga -display gtk -hda dos_rip.img -s -S   
 python3 infect_mbr_stoned.py -mbr michelange1ststage.mbr -vxpaint michelange2ndstage.bin  -diskimg dos_rip.img -sector 0 -vxpaintsector 2   
-
+```
