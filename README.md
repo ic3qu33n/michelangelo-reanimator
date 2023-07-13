@@ -157,8 +157,8 @@ qemu-system-i386 -m 16 -k en-us -rtc base=localtime -device cirrus-vga -display 
 
 
 For running this bootkit on a test target disk, use the Python script located in this repo, named infect_mbr_reanimator.py  
-This script does some of the heavy lifted that is normally handled by the TSR infection routines when the virus is first executed.  
-You can use this Python script to infect a disk and the use the above guide for debugging with GDB.  
+This script does some of the heavy lifting that is normally handled by the TSR infection routines when the virus is first executed.  
+You can use this Python script to infect a disk and then use the above guide for debugging with GDB.  
 You can also debug with Bochs (this is the better option. My notes on my process for debugging with Bochs will be posted soon.)    
 For now, you can refer to this document to get started debugging with Bochs:    
 “COS 318: Guide for running Bochs”  
