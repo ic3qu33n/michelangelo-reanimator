@@ -26,7 +26,6 @@ SCALED_SCREEN_H		equ	0x14*SCALE_MULTIPLIER			;;200 / 10
 ;OFFSET_SCREEN_H		equ SCALED_SCREEN_H*SCREEN_WIDTH
 ;MBRSPRITE_W			equ	0x100							;;256
 ;MBRSPRITE_AREA		equ	0x7D00							;;320 / * MBRSPRITE_W
-MBRSPRITE			equ 0x200
 NEWSPRITE_AREA		equ	0x2800*SCALE_MULTIPLIER			;;320 / * MBRSPRITE_W
 VGA_PAL_INDEX		equ	0x3C8
 VGA_PAL_DATA		equ	0x3C9
@@ -99,43 +98,9 @@ retrieve_og_mbr:
 		mov bx, 0x200
 		int 13h
 	
-mbrpaint_setup:
-	;pop si
-	xor di, di
-	mbrpaint_loop:
-		push 	di
-		push	cx
-		ogmbr_paint:
-			push si
-			push cs
-			pop ds
-			mov si, 0x200
-			mov bx, MBRSPRITE
-			vga_ogmbr_y:
-				push di
-				mov dx, 0x20
-				vga_ogmbr_x:
-					lodsb
-					;;mov ax, ds:[si]
-					or al, es:[di]
-					add al, 0x01
-					;;mov es:[di], al 
-					stosb
-					;;inc si
-					;;inc di
-					dec dx
-					jnz vga_ogmbr_x
-				pop di
-				add di, SCREEN_WIDTH
-				dec bx
-				jnz vga_ogmbr_y
-			pop si
-		pop		cx
-		pop 	di
-		add		di, NEWSPRITE_AREA
-;		jmp [cs:bx]
+		jmp [bx]
 
-;		jmp	gen_rand_num
+		jmp	gen_rand_num
 		;inc cl
 		;mov byte [sector_count], cl
 		;mov cx, 2400

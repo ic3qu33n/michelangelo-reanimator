@@ -212,7 +212,7 @@ welcome2:
 	inc si
 	dec cx
 	jnz welcome2
-	;jmp key_check
+	jmp key_check
 
 ;;	jmp	load_og_mbr
 
@@ -259,62 +259,62 @@ baibai:
 	hlt	
 	jmp baibai
 
-load_og_mbr:
-	xchg bx, bx
-	mov ax, 0x0		;reset disk
-	int 13h
-	;push cs
-	;pop es
-	;push cs
-	;pop ds
-	mov ax, 0x07c0
-	mov es, ax
-	mov ds, ax
-	;xor ax, ax
-	;mov ds, ax
-	;mov cs, ax
-	;mov di, 0x7c00
-	xor di, di
-	xor si, si
-	read_sector:
-		mov ax, 0x201	;read twenty one sectors of disk
-		mov ch, 0
-		mov cl, 3		;cylinder 0, sector 3 
-		;mov dh, 0x0 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
-		;mov dh, 0x80 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
-		;mov bx, 0x200
-		mov bx, mbr_buffer
-		;mov bx, 0
-		;mov bx, mbr_buffer
-		;mov bx, 0x7c00
-		int 13h
-	;jmp [es:bx]
-	;jmp [bx]
-	xchg bx, bx
+;load_og_mbr:
+;	xchg bx, bx
+;	mov ax, 0x0		;reset disk
+;	int 13h
+;	;push cs
+;	;pop es
+;	;push cs
+;	;pop ds
+;	mov ax, 0x07c0
+;	mov es, ax
+;	mov ds, ax
+;	;xor ax, ax
+;	;mov ds, ax
+;	;mov cs, ax
+;	;mov di, 0x7c00
+;	xor di, di
+;	xor si, si
+;	read_sector:
+;		mov ax, 0x201	;read twenty one sectors of disk
+;		mov ch, 0
+;		mov cl, 3		;cylinder 0, sector 3 
+;		;mov dh, 0x0 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
+;		;mov dh, 0x80 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
+;		;mov bx, 0x200
+;		mov bx, mbr_buffer
+;		;mov bx, 0
+;		;mov bx, mbr_buffer
+;		;mov bx, 0x7c00
+;		int 13h
+;	;jmp [es:bx]
+;	;jmp [bx]
+;	xchg bx, bx
+;;	jmp bootfinal:0
+;		
+;		;inc cl
+;		;mov byte [sector_count], cl
+;	lea si, [bx]
+;	mov cx, 0x100
+;	loop:
+;		;mov ax, [es:bx]
+;		mov ax, [bx]
+;		mov ds:[di], ax
+;		;xchg bx, bx
+;		add bx,2
+;		add di,2
+;		dec cx
+;		cmp cx, 0
+;		jnz loop
+;;		repnz
+;	xchg bx, bx
+;	
+;	
 ;	jmp bootfinal:0
-		
-		;inc cl
-		;mov byte [sector_count], cl
-	lea si, [bx]
-	mov cx, 0x100
-	loop:
-		;mov ax, [es:bx]
-		mov ax, [bx]
-		mov ds:[di], ax
-		;xchg bx, bx
-		add bx,2
-		add di,2
-		dec cx
-		cmp cx, 0
-		jnz loop
-;		repnz
-	xchg bx, bx
-	
-	
-	jmp bootfinal:0
-	;jmp 0:bootfinal
-
-bootfinal equ 0x07c0
+;	;jmp 0:bootfinal
+;
+;bootfinal equ 0x07c0
 
 
 

