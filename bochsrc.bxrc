@@ -3,27 +3,15 @@ romimage: file="/usr/share/bochs/BIOS-bochs-legacy"
 vgaromimage: file="/usr/share/bochs/VGABIOS-lgpl-latest"
 
 
-boot: floppy
-#boot: floppy, disk
+boot: floppy, disk
 #boot: disk
 floppy_bootsig_check: disabled=0
 #floppya: 1_44="/home/vik/freedos/144m/x86BOOT.img", status=inserted
-#ata0: enabled=1, ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
 floppya: 1_44="dos_rip.img", status=inserted
-#floppya: 1_44="newdos_clone0.img", status=inserted
 
-##ata0-master: type=disk, path="dos_rip.img", mode=flat, translation=auto
-#ata0-master: type=disk, path="dos_rip.img", mode=flat
-#ata0-master: type=disk, path="dos3.img", mode=flat, translation=auto
-#ata0-master: type=disk, path="newdos_clone0.img", mode=flat, translation=auto
-#ata0-master: type=disk, path="newdos_clone0.img", mode=flat
-
-##ata0-master: type=disk, path="newdos_clone0.img", mode=flat
-##ata0-master: type=disk, path="michelange_grafx_poly_melt_boot.mbr", mode=flat
-
+ata0: enabled=1, ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
+ata0-master: type=disk, path="dos_rip.img", mode=flat
 #ata1: enabled=1, ioaddr1=0x170, ioaddr2=0x370, irq=15
-#ata2: enabled=0
-#ata3: enabled=0
 
 #config_interface=textconfig
 

@@ -100,6 +100,7 @@ The code for the palette routine was based heavily on that of two palettes by Rr
 
 The second stage payload also does the following:  
 -uses polymorphism to ensure that the graphical payload mutates slightly on each iteration  
+-also uses polymorphism to decrypt itself at boot after each power cycle
 -loads the original MBR from the 3rd sector on disk (where it had been saved during viral infection)  
 maps it into memory at 0x7c00 and jumps to it  
 
@@ -150,6 +151,11 @@ with nested bifurcations, then by all means, live ur truth bb.)
 qemu-system-i386 -m 16 -k en-us -rtc base=localtime -device cirrus-vga -display gtk -hda dos_rip.img -s -S   
 ```
 
+## How to test locally
+### Viewer Discretion is advised
+#### I am not responsible for any damage that you do to your machine by running this. 
+
+
 For running this bootkit on a test target disk, use the Python script located in this repo, named infect_mbr_reanimator.py  
 This script does some of the heavy lifted that is normally handled by the TSR infection routines when the virus is first executed.  
 You can use this Python script to infect a disk and the use the above guide for debugging with GDB.  
@@ -162,6 +168,8 @@ https://www.cs.princeton.edu/courses/archive/fall16/cos318/projects/project1/qui
     
 The command for infecting a test target disk with the Python script will infect a disk such that the following results:  
 1. The viral MBR is placed into the first sector of the disk (Cylinder 0, Head 0, Sector 1); note, this is the first stage bootloader  
+	a. The viral MBR is also encrypted with a really simple XOR encryption routine and then written to disk 
+	(the viral MBR has an equivalent decryption routine which will decrypt the copy of itself loaded from disk during each boot).
 2. The original MBR is placed into the third sector of the disk (Cylinder 0, Head 0, Sector 3)  
 3. The second stage bootloader is loaded into sectors 4-25 of the disk (Cylinder 0, Head 0, Sector 4)-(Cylinder 0, Head 0, Sector 25)  
 Note that the convention that I used in this Python script uses a 0-indexed sector count, which is not how sectors are indexed normally  
@@ -175,9 +183,10 @@ i.e. if you want to save the second stage bootloader to sectors 13-34, then you'
 If none of that makes sense, then just use this command to run the script and don't ask any more questions.  
 
 ```
-python3 infect_mbr_stoned.py -mbr michelange1ststage.mbr -vxpaint michelange2ndstage.bin  -diskimg dos_rip.img -sector 0 -vxpaintsector 2   
+python3 infect_mbr_stoned.py -mbr michelange1ststage.mbr -vxpaint michelange2ndstage.bin -ogmbr michelange_parttable_test_0 -diskimg dos_rip.img -sector 0 -ogmbrsector 2 -vxpaintsector 3
 ```
 
 k luv u so much   
 xoxo  
 ic3qu33n  
+
