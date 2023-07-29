@@ -33,20 +33,20 @@ crypt_offset=0x24
 testkey=0x12
 #def mbr_encrypt(mbr, crypt_offset, mbr_crypt_len):
 def mbr_encrypt(mbr):
-	print("Initial MBR bytes: {0} \n\n".format(mbr))
+##	print("Initial MBR bytes: {0} \n\n".format(mbr))
 	end_byte_index=crypt_offset+mbr_crypt_len
 	mbr_crypt_buf=mbr[crypt_offset:end_byte_index]
-	print("Initial MBR crypting region bytes: {0} \n\n".format(mbr_crypt_buf))
+##	print("Initial MBR crypting region bytes: {0} \n\n".format(mbr_crypt_buf))
 	decryption_key=bytes([testkey])*(mbr_crypt_len)
-	print("decryption key: {0}".format(decryption_key))	
+##	print("decryption key: {0}".format(decryption_key))	
 	fixed_xor_lambda=lambda x: x[0]^x[1]
 		
 	encrypted_mbr = bytes(fixed_xor_lambda((a,b)) for a,b in zip(decryption_key, mbr_crypt_buf))
-	print("Final MBR crypting region bytes: {0} \n\n".format(encrypted_mbr))
+##	print("Final MBR crypting region bytes: {0} \n\n".format(encrypted_mbr))
 	mbr_start=mbr[:crypt_offset]
 	mbr_end=mbr[end_byte_index:]
 	entire_mbr=mbr_start+encrypted_mbr+mbr_end
-	print(entire_mbr)
+##	print(entire_mbr)
 	#return mbr
 	return entire_mbr	
 
