@@ -55,7 +55,7 @@ After loading those 21 sectors, the first stage loader copies them to a designat
 
 The second stage of the payload then displays one of my drawings.   
    
-To make the graphical payload, I scanned a pen+ink drawing of my study of the "Pieta" sculpture by Michelangelo. I then wrote a Python script to downsample the image into a resolution of `(320//some_factor)*(200//factor)*diff_factor` with factors of 10 and 4.  This results in a 128x80 pixel image for VGA mode 13h (320x200x256).    
+To make the graphical payload, I scanned a pen+ink drawing of my study of the "Pieta" sculpture by Michelangelo. I then wrote a Python script to downsample the image into a resolution of `(320//factor)*(200//factor)*diff_factor` with factors of 10 and 4.  This results in a 128x80 pixel image for VGA mode 13h (320x200x256).    
 I then converted the sequence to bytes and appended it to the second stage payload  
   
 The second stage payload then uses various routines to load the bytes of the image, perform various bitwise operations on the bytes to modify the pixel values of the sprite on each iteration of the animation sequence (and, in some cases, the polymorphism modifies the sprite after each frame) for the graphical payload rendering  
@@ -131,14 +131,13 @@ qemu-system-i386 -m 16 -k en-us -rtc base=localtime -device cirrus-vga -display 
 #### I am not responsible for any damage that you do to your machine by running this. 
 
 
-For running this bootkit on a test target disk, use the Python script located in this repo, named infect_mbr_reanimator.py   
+For running this bootkit on a test target disk, use the Python script located in this repo, named `infect_mbr_reanimator.py`   
 This script does some of the heavy lifting that is normally handled by the TSR infection routines when the virus is first executed.    
   
 You can use this Python script to infect a disk and then use the above guide for debugging with GDB.  
 You can also debug with Bochs which is, in all honesty, the better option.  
   
-Until I add my notes on my process for Bochs debugging, you can refer to this document to get started debugging with Bochs:    
-[COS 318: Guide for running Bochs] (https://www.cs.princeton.edu/courses/archive/fall16/cos318/projects/project1/quickstart/quickstart.html) a handy guide from Princeton's CS Department. ty, Princeton CS
+Until I add my notes on my process for Bochs debugging, you can refer to this document to get started debugging with Bochs: [COS 318: Guide for running Bochs](https://www.cs.princeton.edu/courses/archive/fall16/cos318/projects/project1/quickstart/quickstart.html) a handy guide from Princeton's CS Department. ty, Princeton CS
     
 The command for infecting a test target disk with the Python script will infect a disk such that the following results:  
 1. The viral MBR is placed into the first sector of the disk (Cylinder 0, Head 0, Sector 1); note, this is the first stage bootloader  
@@ -158,13 +157,14 @@ If none of that makes sense, then just use this command to run the script and do
 ```
 python3 infect_mbr_stoned.py \    
  -mbr michelange1ststage.mbr \  
--vxpaint michelange2ndstage.bin \  
--ogmbr michelange_parttable_test_0 \   
--diskimg dos_rip.img \   
--sector 0 \   
--ogmbrsector 2 -vxpaintsector 3 \  
+ -vxpaint michelange2ndstage.bin \  
+ -ogmbr michelange_parttable_test_0 \   
+ -diskimg dos_rip.img \   
+ -sector 0 \   
+ -ogmbrsector 2 \
+ -vxpaintsector 3 \  
 ```
-
+  
 k luv u so much   
 xoxo  
 ic3qu33n  
