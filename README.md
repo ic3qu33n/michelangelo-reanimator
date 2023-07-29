@@ -155,7 +155,7 @@ The important thing to note is that when you pass parameters to the Python scrip
 If none of that makes sense, then just use this command to run the script and don't ask any more questions.  
 
 ```
-python3 infect_mbr_stoned.py \    
+python3 infect_mbr_reanimator.py \    
  -mbr michelange1ststage.mbr \  
  -vxpaint michelange2ndstage.bin \  
  -ogmbr michelange_parttable_test_0 \   
