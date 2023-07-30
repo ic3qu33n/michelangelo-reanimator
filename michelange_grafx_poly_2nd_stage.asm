@@ -40,7 +40,9 @@ SCALED_SCREEN_MAX	equ SCALED_SCREEN_W*SCALED_SCREEN_H
 SCALED_SCREEN_W		equ	0x80			;;128
 ;SCALED_SCREEN_H		equ	0x14*SCALE_MULTIPLIER			;;200 / 10 
 SCALED_SCREEN_H		equ	0x50			;;80 
-OFFSET_SCREEN_H		equ (0x28+SCALED_SCREEN_H)*SCREEN_WIDTH ;SCALED_SCREEN_H + 40 pixels padding
+;OFFSET_SCREEN_H		equ (0x28+SCALED_SCREEN_H)*SCREEN_WIDTH ;SCALED_SCREEN_H + 40 pixels padding
+;OFFSET_SCREEN_H		equ (0x10+SCALED_SCREEN_H)*SCREEN_WIDTH ;SCALED_SCREEN_H + 40 pixels padding
+OFFSET_SCREEN_H		equ ((SCALED_SCREEN_H+0x10)*SCALED_SCREEN_W)
 ;OFFSET_SCREEN_H		equ SCALED_SCREEN_H+SCREEN_WIDTH
 ;NEWSPRITE_AREA		equ	0x2800
 ;SPRITE_AREA			equ	0x2800
@@ -130,7 +132,7 @@ paint_setup:
 ;*here*	pop si
 	;push si
 	mov	cx, SCALED_SCREEN_W
-	shr cx, 4
+	shr cx, 5
 ;	mov	cx, 7
 	;shr cx, 8
 ;	shr cx, 6
@@ -140,8 +142,8 @@ paint_setup:
 		push	cx
 		mbr_paint:
 			;lea si, $-VXPaintBuffer+3
-			;mov si, VXPaintBuffer+3
-			mov si, VXPaintstart
+			mov si, $VXPaintBuffer+3
+			;mov si, VXPaintstart
 			push si
 			push cs
 			pop ds
@@ -194,32 +196,13 @@ message:
 	pop ds
 welcome:
 	mov al, ds:[si]
-	mov bh, 0
-	mov bl, 0x0F
+	mov bh, 0x0
+	mov bl, 0x0a
 	mov ah, 0x0E
 	int 0x10
 	inc si
 	dec cx
 	jnz welcome
-
-rsvp2:
-	mov cx, 2
-	mov si, crypt_key
-message2:
-	push cs
-	pop ds
-welcome2:
-	mov al, [si]
-	mov bh, 0
-	mov bl, 0x0F
-	mov ah, 0x0E
-	int 0x10
-	inc si
-	dec cx
-	jnz welcome2
-	jmp key_check
-
-;;	jmp	load_og_mbr
 
 ;rsvp2:
 ;	mov cx, 2
@@ -237,7 +220,7 @@ welcome2:
 ;	dec cx
 ;	jnz welcome2
 ;	;jmp key_check
-;
+;;	jmp	load_og_mbr
 ;******************************************************************************
 ;
 ;	Reads char from buffer (function 0h,int16h)
@@ -252,6 +235,8 @@ key_check:
 	;;check for keypress
 	cmp	al, 1
 	jnz	baibai
+	jmp key_check
+	;jmp bootvxmbr:0
 	;jnz	load_og_mbr
 ;	jmp	load_og_mbr
 ;******************************************************************************
@@ -261,9 +246,12 @@ key_check:
 ;
 ;******************************************************************************
 baibai:
-	hlt	
-	jmp bootfinal:0
-;	jmp baibai
+	hlt
+;	mov ax, bootfinal
+;	push ax
+;	ret	
+;	jmp bootfinal:0
+	jmp baibai
 
 ;load_og_mbr:
 ;	xchg bx, bx
@@ -276,9 +264,10 @@ baibai:
 ;	mov ax, 0x07c0
 ;	mov es, ax
 ;	mov ds, ax
-;	;xor ax, ax
-;	;mov ds, ax
-;	;mov cs, ax
+;	xor ax, ax
+;	mov ds, ax
+;	mov cs, ax
+;	mov es, ax
 ;	;mov di, 0x7c00
 ;	xor di, di
 ;	xor si, si
@@ -319,8 +308,9 @@ baibai:
 ;	
 ;	;jmp 0:bootfinal
 ;
-;bootfinal equ 0x07c0
-bootfinal equ 0x07e0
+bootfinal equ 0x07c0
+;bootfinal equ 0x07e0
+;bootvxmbr equ 0x0600
 
 
 
