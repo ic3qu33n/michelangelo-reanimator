@@ -79,10 +79,8 @@ crypt:
 load_vx_paint:
 ;	signature:
 	db 0x78,0x6f,0x78,0x6f
-;	xchg bx,bx
 	mov ax, 0x0		;reset disk
 	int 13h
-
 
 	push cs
 	pop es
@@ -93,14 +91,11 @@ load_vx_paint:
 	mov es, ax
 	mov ds, ax
 
-	;mov cx, 2400
 	mov cx, 0x1500
 	push cx
-
 	
 	xor di, di
 	xor si, si
-
 
 	read_sector:
 		mov ax, 0x215	;read twenty one sectors of disk
@@ -118,7 +113,6 @@ load_vx_paint:
 		stosw
 		;mov word [es:di], ax
 		add bx,2
-		;add di,2
 		dec cx
 		cmp cx, 0
 		jnz copy_sector_loop
@@ -134,7 +128,6 @@ copy_vx_MBR:
 	pop es						;to address 0000:0x600
 	mov di, 0x600				;this is typical MBR behavior
 	mov bx, VX_BOOT ;ax=VXBOOT
-;	lea bx, VX_BOOT ;ax=VXBOOT
 ;	;xor si, si
 	mov byte [copy_replay], 0x1
 ;	xchg bx, bx
@@ -170,12 +163,6 @@ copy_OG_MBR:
 idontplaytagb:	
 	jmp boot2nd:0
 
-;sector_count:
-;	db 0x03
-
-;num_sectors:
-;	dw 0x0
-
 ;sector_num equ sector_count+num_sectors
 
 DefaultDisk:
@@ -183,7 +170,6 @@ DefaultDisk:
 
 boot2nd equ 0x900
 cryptlen equ $-crypt
-
 
 copy_replay:
 	db 0x2
