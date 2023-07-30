@@ -136,8 +136,10 @@ This script does some of the heavy lifting that is normally handled by the TSR i
   
 You can use this Python script to infect a disk and then use the above guide for debugging with GDB.  
 You can also debug with Bochs which is, in all honesty, the better option.  
-  
-Until I add my notes on my process for Bochs debugging, you can refer to this document to get started debugging with Bochs: [COS 318: Guide for running Bochs](https://www.cs.princeton.edu/courses/archive/fall16/cos318/projects/project1/quickstart/quickstart.html) a handy guide from Princeton's CS Department. ty, Princeton CS
+
+My notes on this process are covered in [Bootkit debugging with Bochs](bootkit-debugging-bochs-guide/bootkit-debugging-with-bochs.md).  
+   
+As a supplementary resource, you can refer to this document to get started debugging with Bochs: [COS 318: Guide for running Bochs](https://www.cs.princeton.edu/courses/archive/fall16/cos318/projects/project1/quickstart/quickstart.html) a handy guide from Princeton's CS Department. ty, Princeton CS
     
 The command for infecting a test target disk with the Python script will infect a disk such that the following results:  
 1. The viral MBR is placed into the first sector of the disk (Cylinder 0, Head 0, Sector 1); note, this is the first stage bootloader  
