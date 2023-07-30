@@ -31,21 +31,15 @@
 ;
 ;******************************************************************************
 
-;.CODE:
 
 ;******************************************************************************
 SCREEN_WIDTH		equ	0x140							;;320
 SCALED_SCREEN_MAX	equ SCALED_SCREEN_W*SCALED_SCREEN_H
-;SCALED_SCREEN_W		equ	0x20*SCALE_MULTIPLIER			;;320 / 10
 SCALED_SCREEN_W		equ	0x80			;;128
-;SCALED_SCREEN_H		equ	0x14*SCALE_MULTIPLIER			;;200 / 10 
 SCALED_SCREEN_H		equ	0x50			;;80 
-;OFFSET_SCREEN_H		equ (0x28+SCALED_SCREEN_H)*SCREEN_WIDTH ;SCALED_SCREEN_H + 40 pixels padding
-;OFFSET_SCREEN_H		equ (0x10+SCALED_SCREEN_H)*SCREEN_WIDTH ;SCALED_SCREEN_H + 40 pixels padding
 OFFSET_SCREEN_H		equ ((SCALED_SCREEN_H+0x10)*SCALED_SCREEN_W)
 ;OFFSET_SCREEN_H		equ SCALED_SCREEN_H+SCREEN_WIDTH
 ;NEWSPRITE_AREA		equ	0x2800
-;SPRITE_AREA			equ	0x2800
 SPRITE_AREA			equ	0x3200		;area of sprite is 0x2800; add 0x400 padding
 NEWSPRITE_AREA		equ	0x2800*SCALE_MULTIPLIER
 SCALE_MULTIPLIER	equ 4
@@ -61,7 +55,6 @@ vga_init:
 	mov	ax, 0x06
 	int	10h
 	mov	ax,0xA000
-	;mov	ax,0xB800
 	mov	es,ax
 	mov	dx,ax
 	mov	di,0
@@ -133,17 +126,12 @@ paint_setup:
 	;push si
 	mov	cx, SCALED_SCREEN_W
 	shr cx, 5
-;	mov	cx, 7
-	;shr cx, 8
-;	shr cx, 6
 	xor di, di
 	paint_loop:
 		push 	di
 		push	cx
 		mbr_paint:
-			;lea si, $-VXPaintBuffer+3
 			mov si, $VXPaintBuffer+3
-			;mov si, VXPaintstart
 			push si
 			push cs
 			pop ds
@@ -157,34 +145,23 @@ paint_setup:
 					or ax, es:[di]
 					;and al, 11111111b
 					add al, 0x01
-					;or ax, es:[di]
 					add al, [randtimer]
 					;sub al, [randshiftnum]
 					xor al, es:[di]
 					or al, es:[di]
-					;mov es:[di], ax
 					mov es:[di], al
-					;mov es:[di+320], al
-					;mov es:[di+2], al 
 					inc si
 					inc di
-					;add si,2
-					;add di,2
 					dec dx
 					jnz vga_mbr_x
 				pop di
-				;add di, OFFSET_SCREEN_H
 				add di, SCREEN_WIDTH
 				sub bx, SCALED_SCREEN_W
-				;dec bx
 				jnz vga_mbr_y
 			pop si
 		pop		cx
 		pop 	di
-	;	add		di, NEWSPRITE_AREA
 		add di, OFFSET_SCREEN_H
-		;add		di, SPRITE_AREA
-		;add		di, OFFSET_SCREEN_H
 		dec 	cx
 		jnz	paint_loop
 
@@ -234,10 +211,10 @@ key_check:
 	int	16h
 	;;check for keypress
 	cmp	al, 1
-	jnz	baibai
-	jmp key_check
+	;jnz	baibai
 	;jmp bootvxmbr:0
-	;jnz	load_og_mbr
+	jnz	load_og_mbr
+	jmp key_check
 ;	jmp	load_og_mbr
 ;******************************************************************************
 ;
@@ -247,72 +224,37 @@ key_check:
 ;******************************************************************************
 baibai:
 	hlt
-;	mov ax, bootfinal
-;	push ax
-;	ret	
 ;	jmp bootfinal:0
 	jmp baibai
 
-;load_og_mbr:
-;	xchg bx, bx
-;	mov ax, 0x0		;reset disk
-;	int 13h
+load_og_mbr:
+	xchg bx, bx
+	mov ax, 0x0		;reset disk
+	int 13h
 ;	;push cs
 ;	;pop es
 ;	;push cs
 ;	;pop ds
-;	mov ax, 0x07c0
-;	mov es, ax
-;	mov ds, ax
-;	xor ax, ax
-;	mov ds, ax
-;	mov cs, ax
-;	mov es, ax
-;	;mov di, 0x7c00
-;	xor di, di
-;	xor si, si
-;	read_sector:
-;		mov ax, 0x201	;read twenty one sectors of disk
-;		mov ch, 0
-;		mov cl, 3		;cylinder 0, sector 3 
+	mov ax, 0x07c0
+	mov es, ax
+	mov ds, ax
+	xor di, di
+	xor si, si
+	read_sector:
+		mov ax, 0x201	;read twenty one sectors of disk
+		mov ch, 0
+		mov cl, 3		;cylinder 0, sector 3 
 ;		;mov dh, 0x0 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
 ;		;mov dh, 0x80 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
-;		;mov bx, 0x200
-;		mov bx, mbr_buffer
-;		;mov bx, 0
-;		;mov bx, mbr_buffer
-;		;mov bx, 0x7c00
-;		int 13h
+		lea bx, es:[di]
+		int 13h
 ;	;jmp [es:bx]
-;	;jmp [bx]
 ;	xchg bx, bx
-;;	jmp bootfinal:0
-;		
-;		;inc cl
-;		;mov byte [sector_count], cl
-;	lea si, [bx]
-;	mov cx, 0x100
-;	loop:
-;		;mov ax, [es:bx]
-;		mov ax, [bx]
-;		mov ds:[di], ax
-;		;xchg bx, bx
-;		add bx,2
-;		add di,2
-;		dec cx
-;		cmp cx, 0
-;		jnz loop
-;;		repnz
-;	xchg bx, bx
-;	
-;	
-;	;jmp 0:bootfinal
-;
+	jmp bootfinal:0
+
+
 bootfinal equ 0x07c0
 ;bootfinal equ 0x07e0
-;bootvxmbr equ 0x0600
-
-
 
 
 greetz:
