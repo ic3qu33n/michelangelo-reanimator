@@ -191,4 +191,4 @@ bochs -q -f bochsrc.bxrc
 
 And voilà, the results of running Bochs with a test (vaguely troll-ish) MBR
 
-![basic bochs debugging with test disk](bootkit-debugging-bochs-guide/basicbochsdebuggingtest.png)
+![basic bochs debugging with test disk](basicbochsdebuggingtest.png)
