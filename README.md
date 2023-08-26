@@ -101,7 +101,12 @@ Here are some demo videos of the bootkit after it has infected a target disk.
 
 [![A video of the graphics payload displayed by the Michelangelo REanimator bootkit, a sprite (pixelated image) is displayed in a repeated pattern across the screen; the sprite is a drawing of a study of Michelangeo's Pieta, thus the image is of a woman (Mary) holding the body of her son (Jesus); color palette of the entire image changes each frame, so the result is that the animation of the sprite shifts colors; the effect is somewhat of a trip, between iridescent waterfall of holy image and shimmering mirage in the desert.]](https://github.com/ic3qu33n/michelangelo-reanimator/assets/121086940/3666d860-45ab-4e1e-80ac-6278550fec19)
 
+## Artist Statement
+This project is both a reverse engineering project and part of a body of work in my artistic practice.
+For additional details on the art process,  you can check out the [artist statement](https://ic3qu33n.fyi/blog/2023/08/26/polymorphic-printmaking)
 
+
+To view a gallery of *some* choice selections of my favorite output images from the bootkit, check out the [Michelangelo REanimator gallery](https://ic3qu33n.fyi/portfolio/m4lw4r3art/michelangelo-reanimator-gallery/)
 
 
 
@@ -146,7 +151,7 @@ The command for infecting a test target disk with the Python script will infect 
 	a. The viral MBR is also encrypted with a really simple XOR encryption routine and then written to disk 
 	(the viral MBR has an equivalent decryption routine which will decrypt the copy of itself loaded from disk during each boot).  
 2. The original MBR is placed into the third sector of the disk (Cylinder 0, Head 0, Sector 3)   
-3. The second stage bootloader is loaded into sectors 4-25 of the disk (Cylinder 0, Head 0, Sector 4)-(Cylinder 0, Head 0, Sector 25)    
+3. The second stage bootloader is loaded into sectors 13-34 of the disk (Cylinder 0, Head 0, Sector 13)-(Cylinder 0, Head 0, Sector 34)    
   
 Note that the convention that I used in this Python script uses a 0-indexed sector count, which is not how sectors are indexed normally  
 (sectors are 1-indexed; the first sector is sector 1. However, both cylinders/tracks and heads/sides use 0-indexing.  
@@ -164,10 +169,9 @@ python3 infect_mbr_reanimator.py \
  -diskimg dos_rip.img \   
  -sector 0 \   
  -ogmbrsector 2 \
- -vxpaintsector 3 \  
+ -vxpaintsector 12 \  
 ```
   
 k luv u so much   
 xoxo  
 ic3qu33n  
-
