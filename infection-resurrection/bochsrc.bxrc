@@ -5,11 +5,13 @@ vgaromimage: file="/usr/share/bochs/VGABIOS-lgpl-latest"
 
 boot: floppy, disk
 floppy_bootsig_check: disabled=0
-ata0-master: type=disk, path="dos-rip-test.img", mode=flat, translation=auto
-floppya: 1_44="dos-rip-test.img", status=inserted
+#ata0-master: type=disk, path="dos-rip-test.img", mode=flat, translation=auto
+#floppya: 1_44="dos-rip-test.img", status=inserted
+#ata0-master: type=disk, path="../img_cemetary/new_dos_rip_2_backup.img", mode=flat, translation=auto
+floppya: 1_44="../img_cemetary/new_dos_rip_2_backup.img", status=inserted
 
 ata0: enabled=1, ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
-ata0-master: type=disk, path="dos-rip-test.img", mode=flat
+#ata0-master: type=disk, path="dos-rip-test.img", mode=flat
 #ata1: enabled=1, ioaddr1=0x170, ioaddr2=0x370, irq=15
 
 #config_interface=textconfig

@@ -141,8 +141,8 @@ paint_setup:
 				push di
 				mov dx, SCALED_SCREEN_W
 				vga_mbr_x:
-					mov al, ds:[si]
-					;xor al, es:[di]
+					mov ax, ds:[si]
+					xor ax, es:[di]
 					;or ax, es:[di]
 					;and al, 11111111b
 					add al, 0x01
@@ -160,8 +160,8 @@ paint_setup:
 				add di, SCREEN_WIDTH
 				;add di, SCALED_SCREEN_W
 				;sub bx, (SCALED_SCREEN_W >> 2)
-				;sub bx, SCALED_SCREEN_W
-				dec bx
+				sub bx, SCALED_SCREEN_W
+				;dec bx
 				jnz vga_mbr_y
 			pop si
 ;		xor cx, cx
@@ -215,8 +215,7 @@ key_check:
 ;******************************************************************************
 baibai:
 	hlt
-	;jmp baibai
-	;jmp key_check
+	jmp baibai
 
 load_og_mbr:
 	xchg bx, bx
@@ -224,8 +223,7 @@ load_og_mbr:
 	int 13h
 ;	mov ax, 0x07c0
 ;	mov ax, 0x01fe
-	mov ax, 0x1fe0
-;	xor ax, ax
+	xor ax, ax
 
 ;The FreeDOS MBR actually relocates itself to high-mem 
 ;(common bootkit technique, though also a common bootloader technique generally)
@@ -237,7 +235,6 @@ load_og_mbr:
 ; on the segment register, by a factor of 4 (shr 4 means segment * 2^4)
 ; So, final address is (0x1fe >> 4) + 0x7c00= 0x1fe0:0x7c00
 
-	xchg bx, bx
 	mov es, ax
 	mov ds, ax
 	mov di, 0x7c00
@@ -246,12 +243,11 @@ load_og_mbr:
 read_sector:
 	mov ax, 0x0201	;read one sectors of disk
 	mov ch, 0
-	mov cl, 1		;cylinder 0, sector 1 
-	mov dl, 0x80 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
+	mov cl, 3		;cylinder 0, sector 3 
+	mov dh, 0x0 	;from Side 0, drive C:, but qemu loads this disk as dx == 0
 	lea bx, [es:di]
 	int 13h
 	
-	xchg bx, bx
 	mov cx, 0x100
 	push cx
 	
@@ -287,9 +283,8 @@ fin:
 
 
 ;bootfinal equ 0x07c0
-bootfinal equ 0x1fe0
 ;bootfinal equ 0x01fe
-;bootfinal equ 0x0
+bootfinal equ 0x0
 bootfinaloff equ 0x7c00
 
 
